@@ -3,19 +3,28 @@ from gatepay.api.model.req.close_order_req import CloseOrderReq
 from gatepay.api.model.req.create_batch_transfer_req import CreateBatchTransferReq
 from gatepay.api.model.req.payment.create_order_req import CreateOrderReq
 from gatepay.api.model.req.payment.create_refund_req import CreateRefundReq
-from gatepay.api.model.req.payment.query_order_req import QueryOrderReq
+from gatepay.api.model.req.payment.create_refund_req_v3 import CreateRefundReqV3
 from gatepay.api.model.req.payment.query_balance_req import QueryBalanceReq
+from gatepay.api.model.req.payment.query_order_req import QueryOrderReq
+from gatepay.api.model.req.payment.query_order_req_v3 import QueryOrderReqV3
+from gatepay.api.model.req.payment.query_refund_req_v3 import QueryRefundReqV3
+from gatepay.api.model.req.payment.query_refund_support_chains_req import QueryRefundSupportChainsReqV3
 from gatepay.api.model.req.query_batch_transfer_req import QueryBatchTransferReq
-from gatepay.api.model.req.query_refund_req import QueryRefundReq
+from gatepay.api.model.req.payment.query_refund_req import QueryRefundReq
 from gatepay.api.model.resp.close_order_resp import CloseOrderResp
 from gatepay.api.model.resp.create_batch_transfer_resp import CreateBatchTransferResp
 from gatepay.api.model.resp.create_refund_resp import CreateRefundResp
 from gatepay.api.model.resp.payment.create_order_resp import CreateOrderResp
+from gatepay.api.model.resp.payment.create_refund_resp_v3 import CreateRefundRespV3
 from gatepay.api.model.resp.payment.query_balance_resp import QueryBalanceResp
-from gatepay.api.model.resp.query_batch_transfer_resp import QueryBatchTransferResp
 from gatepay.api.model.resp.payment.query_order_resp import QueryOrderResp
-from gatepay.api.model.resp.query_refund_resp import QueryRefundResp
+from gatepay.api.model.resp.payment.query_order_resp_v3 import QueryOrderRespV3
+from gatepay.api.model.resp.payment.query_refund_resp_v3 import QueryRefundRespV3
+from gatepay.api.model.resp.query_batch_transfer_resp import QueryBatchTransferResp
+from gatepay.api.model.resp.payment.query_refund_resp import QueryRefundResp
 from gatepay.gatepay_config import GatePayConfig
+
+from gatepay.api.model.resp.chains_resp import ChainsResp
 
 
 class ApiPayment(BaseApi):
@@ -100,3 +109,39 @@ class ApiPayment(BaseApi):
         :return: 查询余额响应结果
         """
         return super().process(request, QueryBalanceResp)
+
+    def query_order_v3(self, request: QueryOrderReqV3) -> QueryOrderRespV3:
+        """
+        查询订单V3
+
+        :param request: 查询订单请求参数
+        :return: 查询订单响应结果
+        """
+        return super().process(request, QueryOrderRespV3)
+
+    def query_refund_support_chain(self, request: QueryRefundSupportChainsReqV3) -> ChainsResp:
+        """
+        退款到 Web3 支持的网络和费率查询
+
+        :param request: 查询退款请求参数
+        :return: 查询退款到链上响应结果
+        """
+        return super().process(request, ChainsResp)
+
+    def create_refund_v3(self, request: CreateRefundReqV3) -> CreateRefundRespV3:
+        """
+        创建退款订单V3
+
+        :param request: 创建退款请求参数
+        :return: 创建退款响应结果
+        """
+        return super().process(request, CreateRefundRespV3)
+
+    def query_refund_v3(self, request: QueryRefundReqV3) -> QueryRefundRespV3:
+        """
+        查询退款订单V3
+
+        :param request: 查询退款请求参数
+        :return: 查询退款响应结果
+        """
+        return super().process(request, QueryRefundRespV3)

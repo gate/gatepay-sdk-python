@@ -28,6 +28,12 @@ class ChainNameItem:
     # 是否有提现记录
     has_withdraw_memo: int = 0
 
+    # 提现百分比
+    withdraw_percent:Optional[str] = None
+
+    # 提现百分比
+    withdraw_fix:Optional[str] = None
+
     def get_chain(self) -> Optional[str]:
         """
         获取Gate链
@@ -139,6 +145,19 @@ class ChainNameItem:
         :param has_withdraw_memo: 是否有提现记录
         """
         self.has_withdraw_memo = has_withdraw_memo
+
+    def get_withdraw_percent(self) -> str:
+        return self.withdraw_percent
+
+    def set_withdraw_percent(self, withdraw_percent: str) -> None:
+        self.withdraw_percent = withdraw_percent
+
+
+    def get_withdraw_fix(self) -> str:
+        return self.withdraw_fix
+
+    def set_withdraw_fix(self, withdraw_fix: str) -> None:
+        self.withdraw_fix = withdraw_fix
 
 
 @dataclass

@@ -4,7 +4,7 @@ class GatePayConstants:
     """
 
     # 请求地址相关
-    END_POINT_DEFAULT = "http://dev.halftrust.xyz/gfpay"
+    END_POINT_DEFAULT = ""
     END_POINT_OPEN_PLATFORM = ""
 
     # 请求方法相关

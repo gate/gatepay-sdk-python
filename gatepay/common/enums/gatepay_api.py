@@ -24,6 +24,11 @@ class GatePayApi(Enum):
     PAYMENT_CREATE_BATCH_TRANSFER = ("/v1/pay/batch/transfer", "POST")
     PAYMENT_QUERY_BATCH_TRANSFER = ("/v1/pay/batch/transfer/query", "POST")
     PAYMENT_QUERY_BALANCE = ("/v1/pay/balance", "GET")
+    #V3
+    PAYMENT_QUERY_ORDER_V3 = ("/v3/pay/order/query", "GET")
+    PAYMENT_QUERY_REFUND_SUPPORT_CHAINS_V3 = ("/v3/refund/support/chains", "GET")
+    PAYMENT_CREATE_REFUND_V3 = ("/v3/order/refund", "POST")
+    PAYMENT_QUERY_REFUND_V3 = ("/v3/pay/refund/details", "GET")
 
     # 收银台相关API
     CHECKOUT_CREATE_ORDER = ("/v1/pay/checkout/order", "POST")
