@@ -2,52 +2,55 @@ import time
 import unittest
 from datetime import datetime
 
-from gatepay.api.model.batch_order import BatchOrder
-from gatepay.api.model.custom_field import CustomField
-from gatepay.api.model.merchant_channel import MerchantChannel
-from gatepay.api.model.req.address.create_order_req import CreateOrderReq as AddressCreateOrderReq
-from gatepay.api.model.req.address.create_refund_req import CreateRefundReq as AddressCreateRefundReq
-from gatepay.api.model.req.address.query_order_req import QueryOrderReq as AddressQueryOrderReq
-from gatepay.api.model.req.query_chains_req import QueryChainsReq
-from gatepay.api.model.req.query_status_req import QueryStatusReq
-from gatepay.api.model.req.withdraw.query_order_req import QueryOrderReq as WithdrawQueryOrderReq
-from gatepay.api.model.req.chain_req import ChainsReq
-from gatepay.api.model.req.checkout.create_order_req import CreateOrderReq as CheckOutCreateOrderReq
-from gatepay.api.model.req.checkout.create_refund_req import CreateRefundReq as CheckOutCreateRefundReq
-from gatepay.api.model.req.close_order_req import CloseOrderReq
-from gatepay.api.model.req.convert.create_order_req import CreateOrderReq as ConvertCreateOrderReq
-from gatepay.api.model.req.convert.query_order_req import QueryOrderReq as ConvertQueryOrderReq
-from gatepay.api.model.req.create_batch_transfer_req import CreateBatchTransferReq
-from gatepay.api.model.req.create_refund_convert_req import CreateRefundConvertReq as AddressCreateRefundConvertReq
-from gatepay.api.model.req.env_req import EnvReq
-from gatepay.api.model.req.gift.create_req import CreateReq
-from gatepay.api.model.req.gift.list_temp_req import ListTempReq
-from gatepay.api.model.req.gift.query_req import QueryReq
-from gatepay.api.model.req.goods_req import GoodsReq
-from gatepay.api.model.req.manage.delete_req import DeleteReq
-from gatepay.api.model.req.manage.list_req import ListReq
-from gatepay.api.model.req.manage.save_req import SaveReq
-from gatepay.api.model.req.manage.update_req import UpdateReq
-from gatepay.api.model.req.payment.create_order_req import CreateOrderReq as PaymentCreateOrderReq
-from gatepay.api.model.req.payment.create_refund_req import CreateRefundReq as PaymentCreateRefundReq
-from gatepay.api.model.req.payment.query_order_req import QueryOrderReq as WebQueryOrderReq
-from gatepay.api.model.req.preview_req import PreviewReq
-from gatepay.api.model.req.qrcode.create_order_req import CreateOrderReq as QrCodeCreateOrderReq
-from gatepay.api.model.req.payment.query_balance_req import QueryBalanceReq
-from gatepay.api.model.req.withdraw.query_balance_req import QueryBalanceReq as WithdrawQueryBalanceReq
-from gatepay.api.model.req.query_batch_transfer_req import QueryBatchTransferReq
-from gatepay.api.model.req.query_currency_req import QueryCurrencyReq
-from gatepay.api.model.req.query_orders_req import QueryOrdersReq
-from gatepay.api.model.req.query_pair_req import QueryPairReq
-from gatepay.api.model.req.supported_convert_currencies_req import SupportedConvertCurrenciesReq
-from gatepay.api.model.req.transaction_detail_req import TransactionDetailReq
-from gatepay.api.model.req.withdraw.create_order_req import CreateOrderReq as WithdrawCreateOrderReq
-from gatepay.api.model.base_withdraw import Withdraw
-from gatepay.client.gatepay_client import GatePayClient
-from gatepay.common.gatepay_constants import GatePayConstants
-from gatepay.common.utils.random_utils import RandomUtils
-from gatepay.gatepay_config import GatePayConfig
-from gatepay.infrastructure.credential import Credential
+from src.gatepay.api.model.base_withdraw import Withdraw
+from src.gatepay.api.model.batch_order import BatchOrder
+from src.gatepay.api.model.custom_field import CustomField
+from src.gatepay.api.model.merchant_channel import MerchantChannel
+from src.gatepay.api.model.req.address.create_order_req import CreateOrderReq as AddressCreateOrderReq
+from src.gatepay.api.model.req.address.create_refund_req import CreateRefundReq as AddressCreateRefundReq
+from src.gatepay.api.model.req.address.query_order_req import QueryOrderReq as AddressQueryOrderReq
+from src.gatepay.api.model.req.chain_req import ChainsReq
+from src.gatepay.api.model.req.checkout.create_order_req import CreateOrderReq as CheckOutCreateOrderReq
+from src.gatepay.api.model.req.checkout.create_refund_req import CreateRefundReq as CheckOutCreateRefundReq
+from src.gatepay.api.model.req.close_order_req import CloseOrderReq
+from src.gatepay.api.model.req.convert.create_order_req import CreateOrderReq as ConvertCreateOrderReq
+from src.gatepay.api.model.req.convert.query_order_req import QueryOrderReq as ConvertQueryOrderReq
+from src.gatepay.api.model.req.create_batch_transfer_req import CreateBatchTransferReq
+from src.gatepay.api.model.req.create_refund_convert_req import CreateRefundConvertReq as AddressCreateRefundConvertReq
+from src.gatepay.api.model.req.env_req import EnvReq
+from src.gatepay.api.model.req.gift.create_req import CreateReq
+from src.gatepay.api.model.req.gift.list_temp_req import ListTempReq
+from src.gatepay.api.model.req.gift.query_req import QueryReq
+from src.gatepay.api.model.req.goods_req import GoodsReq
+from src.gatepay.api.model.req.manage.delete_req import DeleteReq
+from src.gatepay.api.model.req.manage.list_req import ListReq
+from src.gatepay.api.model.req.manage.save_req import SaveReq
+from src.gatepay.api.model.req.manage.update_req import UpdateReq
+from src.gatepay.api.model.req.payment.create_order_req import CreateOrderReq as PaymentCreateOrderReq
+from src.gatepay.api.model.req.payment.create_refund_req import CreateRefundReq as PaymentCreateRefundReq
+from src.gatepay.api.model.req.payment.create_refund_req_v3 import CreateRefundReqV3 as PaymentCreateRefundReqV3
+from src.gatepay.api.model.req.payment.query_balance_req import QueryBalanceReq
+from src.gatepay.api.model.req.payment.query_order_req import QueryOrderReq as WebQueryOrderReq
+from src.gatepay.api.model.req.payment.query_order_req_v3 import QueryOrderReqV3 as WebQueryOrderReqV3
+from src.gatepay.api.model.req.payment.query_refund_req_v3 import QueryRefundReqV3 as PaymentQueryRefundReqV3
+from src.gatepay.api.model.req.payment.query_refund_support_chains_req import QueryRefundSupportChainsReqV3
+from src.gatepay.api.model.req.preview_req import PreviewReq
+from src.gatepay.api.model.req.qrcode.create_order_req import CreateOrderReq as QrCodeCreateOrderReq
+from src.gatepay.api.model.req.query_batch_transfer_req import QueryBatchTransferReq
+from src.gatepay.api.model.req.query_chains_req import QueryChainsReq
+from src.gatepay.api.model.req.query_currency_req import QueryCurrencyReq
+from src.gatepay.api.model.req.query_orders_req import QueryOrdersReq
+from src.gatepay.api.model.req.query_pair_req import QueryPairReq
+from src.gatepay.api.model.req.query_status_req import QueryStatusReq
+from src.gatepay.api.model.req.supported_convert_currencies_req import SupportedConvertCurrenciesReq
+from src.gatepay.api.model.req.transaction_detail_req import TransactionDetailReq
+from src.gatepay.api.model.req.withdraw.create_order_req import CreateOrderReq as WithdrawCreateOrderReq
+from src.gatepay.api.model.req.withdraw.query_balance_req import QueryBalanceReq as WithdrawQueryBalanceReq
+from src.gatepay.api.model.req.withdraw.query_order_req import QueryOrderReq as WithdrawQueryOrderReq
+from src.gatepay.client.gatepay_client import GatePayClient
+from src.gatepay.common.utils.random_utils import RandomUtils
+from src.gatepay.gatepay_config import GatePayConfig
+from src.gatepay.infrastructure.credential import Credential
 
 
 class GatePayClientTest(unittest.TestCase):
@@ -57,7 +60,7 @@ class GatePayClientTest(unittest.TestCase):
         初始化GatePay客户端
         """
         gate_pay_config = GatePayConfig(
-            GatePayConstants.END_POINT_DEFAULT,
+            "http://dev.halftrust.xyz/gfpay",
             30,
             "mZ96D37oKk-HrWJc",
             Credential("Mz6M_q4AkDnZCSoTDo03A6OtWzN5ut8_Uix3jyVjxAU=", "SkZlbKOqPoMwnxhl")
@@ -89,7 +92,6 @@ class GatePayClientTest(unittest.TestCase):
         goods_req = GoodsReq()
         goods_req.set_goods_name("test")
         goods_req.set_goods_detail("testDetail")
-
         # 创建地址订单请求对象
         create_order_req = AddressCreateOrderReq()
         create_order_req.set_merchant_trade_no(RandomUtils.generate_nonce(24))
@@ -431,6 +433,43 @@ class GatePayClientTest(unittest.TestCase):
         query_status_req=QueryStatusReq()
         query_status_req.set_currency("USDT")
         print(self.init_gate_pay_client().query_withdraw_status(query_status_req).get_data().__str__())
+
+    def test_query_web_order_v3(self):
+        web_query_order_req=WebQueryOrderReqV3()
+        web_query_order_req.set_prepay_id("35297827964846503")
+        web_query_order_req.set_merchant_trade_no("43wGhuujHKwAoLXRd7mMjihU")
+        print(self.init_gate_pay_client_v3().query_web_order_v3(web_query_order_req).get_data().__str__())
+
+    def test_query_web_refund_support_chains_v3(self):
+        query_refund_support_chains_req=QueryRefundSupportChainsReqV3()
+        query_refund_support_chains_req.set_currency("USDT")
+        print(self.init_gate_pay_client_v3().query_web_refund_support_chains_v3(query_refund_support_chains_req).get_data().__str__())
+
+    def test_query_web_refund_v3(self):
+        query_refund_req=PaymentQueryRefundReqV3()
+        query_refund_req.set_refund_request_id("35297827964846503")
+        print(self.init_gate_pay_client_v3().query_web_refund_v3(query_refund_req).get_data().__str__())
+
+    def test_web_create_refund_v3(self):
+        create_order_req = PaymentCreateRefundReqV3()
+        create_order_req.set_merchant_id(RandomUtils.generate_nonce(14))
+        create_order_req.set_client_id("USDT")
+        create_order_req.set_refund_request_id("9.9")
+        create_order_req.set_prepay_id("123")
+        create_order_req.set_refund_amount("1_elbt01_16882172126048")
+        create_order_req.set_refund_reason("1_elbt01_16882172126048")
+        create_order_req.set_refund_gate_id("1_elbt01_16882172126048")
+        create_order_req.set_refund_to_gate_uid("1_elbt01_16882172126048")
+        create_order_req.set_refund_style("1_elbt01_16882172126048")
+        create_order_req.set_refund_pay_channel("1_elbt01_16882172126048")
+        create_order_req.set_refund_address("1_elbt01_16882172126048")
+        create_order_req.set_refund_chain("1_elbt01_16882172126048")
+        create_order_req.set_refund_amount_type_full("1_elbt01_16882172126048")
+
+        print("merchantOrderNo:" + create_order_req.get_merchant_trade_no())
+        create_order_resp = self.init_gate_pay_client().create_web_refund_v3(create_order_req)
+        print(create_order_resp.get_data().__str__())
+
 
 if __name__ == '__main__':
     unittest.main()
