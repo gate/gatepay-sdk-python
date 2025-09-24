@@ -16,8 +16,6 @@ class MerchantChannel:
     chain: Optional[str] = None
     currency: Optional[str] = None
     address: Optional[str] = None
-    create_time: int = 0
-    update_time: int = 0
     custom_fields: Optional[List[CustomField]] = None
     result: Optional[str] = None
 
@@ -102,38 +100,6 @@ class MerchantChannel:
         :param address: 地址
         """
         self.address = address
-
-    def get_create_time(self) -> int:
-        """
-        获取创建时间
-
-        :return: 创建时间戳
-        """
-        return self.create_time
-
-    def set_create_time(self, create_time: int) -> None:
-        """
-        设置创建时间
-
-        :param create_time: 创建时间戳
-        """
-        self.create_time = create_time
-
-    def get_update_time(self) -> int:
-        """
-        获取更新时间
-
-        :return: 更新时间戳
-        """
-        return self.update_time
-
-    def set_update_time(self, update_time: int) -> None:
-        """
-        设置更新时间
-
-        :param update_time: 更新时间戳
-        """
-        self.update_time = update_time
 
     def get_custom_fields(self) -> Optional[List[CustomField]]:
         """
