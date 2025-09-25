@@ -105,10 +105,18 @@ class BaseApi:
 
         # 直接解析JSON到响应类
         json_data = json.loads(to_snake_json_str)
-        resp = resp_class()
-        for key, value in json_data.items():
-            if hasattr(resp, key):
-                setattr(resp, key, value)
+        if isinstance(json_data, list):
+            # 处理列表数据 - 可能需要根据实际需求调整
+            resp = resp_class()
+            # 如果响应类有 data 字段，将列表赋值给它
+            if hasattr(resp, 'data'):
+                setattr(resp, 'data', json_data)
+        else :
+            resp = resp_class()
+            for key, value in json_data.items():
+                if hasattr(resp, key):
+                    setattr(resp, key, value)
+
         return resp
 
     def process(self, req: Req, resp_class: Type[Resp]) -> Resp:
