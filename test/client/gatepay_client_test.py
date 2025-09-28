@@ -2,7 +2,9 @@
 import time
 import unittest
 from datetime import datetime
-from symbol import return_stmt
+
+import jsonpath
+
 from src.gatepay.api.model.base_withdraw import Withdraw
 from src.gatepay.api.model.batch_order import BatchOrder
 from src.gatepay.api.model.custom_field import CustomField
@@ -18,6 +20,8 @@ from src.gatepay.api.model.req.convert.create_order_req import CreateOrderReq as
 from src.gatepay.api.model.req.convert.query_order_req import QueryOrderReq as ConvertQueryOrderReq
 from src.gatepay.api.model.req.create_batch_transfer_req import CreateBatchTransferReq
 from src.gatepay.api.model.req.create_refund_convert_req import CreateRefundConvertReq as AddressCreateRefundConvertReq
+# no sdk api
+from src.gatepay.api.model.req.currencies_req import CurrenciesReq
 from src.gatepay.api.model.req.env_req import EnvReq
 from src.gatepay.api.model.req.gift.create_req import CreateReq
 from src.gatepay.api.model.req.gift.list_temp_req import ListTempReq
@@ -25,19 +29,13 @@ from src.gatepay.api.model.req.gift.query_req import QueryReq
 from src.gatepay.api.model.req.goods_req import GoodsReq
 from src.gatepay.api.model.req.manage.delete_req import DeleteReq
 from src.gatepay.api.model.req.manage.list_req import ListReq
+# allenby
 from src.gatepay.api.model.req.manage.save_req import SaveReq
 from src.gatepay.api.model.req.manage.update_req import UpdateReq
 from src.gatepay.api.model.req.payment.create_order_req import CreateOrderReq as PaymentCreateOrderReq
 from src.gatepay.api.model.req.payment.create_refund_req import CreateRefundReq as PaymentCreateRefundReq
-from src.gatepay.api.model.req.payment.create_refund_req_v3 import CreateRefundReqV3 as PaymentCreateRefundReqV3
 from src.gatepay.api.model.req.payment.query_balance_req import QueryBalanceReq
 from src.gatepay.api.model.req.payment.query_order_req import QueryOrderReq as WebQueryOrderReq
-from src.gatepay.api.model.req.payment.query_order_req_v3 import QueryOrderReqV3 as WebQueryOrderReqV3
-from src.gatepay.api.model.req.payment.query_refund_req_v3 import QueryRefundReqV3 as PaymentQueryRefundReqV3
-
-from src.gatepay.api.model.req.payment.query_refund_req import QueryRefundReq as PaymentQueryRefundReq
-
-from src.gatepay.api.model.req.payment.query_refund_support_chains_req import QueryRefundSupportChainsReqV3
 from src.gatepay.api.model.req.preview_req import PreviewReq
 from src.gatepay.api.model.req.qrcode.create_order_req import CreateOrderReq as QrCodeCreateOrderReq
 from src.gatepay.api.model.req.query_batch_transfer_req import QueryBatchTransferReq
@@ -55,13 +53,7 @@ from src.gatepay.client.gatepay_client import GatePayClient
 from src.gatepay.common.utils.random_utils import RandomUtils
 from src.gatepay.gatepay_config import GatePayConfig
 from src.gatepay.infrastructure.credential import Credential
-import time
-import jsonpath
-#allenby
-from src.gatepay.api.model.req.manage.save_req import SaveReq
 
-#no sdk api
-from src.gatepay.api.model.req.currencies_req import CurrenciesReq
 
 class GatePayClientTest(unittest.TestCase):
 
