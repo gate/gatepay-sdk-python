@@ -1,7 +1,8 @@
+# -*- coding: gbk -*-
 import time
 import unittest
 from datetime import datetime
-
+from symbol import return_stmt
 from src.gatepay.api.model.base_withdraw import Withdraw
 from src.gatepay.api.model.batch_order import BatchOrder
 from src.gatepay.api.model.custom_field import CustomField
@@ -33,6 +34,9 @@ from src.gatepay.api.model.req.payment.query_balance_req import QueryBalanceReq
 from src.gatepay.api.model.req.payment.query_order_req import QueryOrderReq as WebQueryOrderReq
 from src.gatepay.api.model.req.payment.query_order_req_v3 import QueryOrderReqV3 as WebQueryOrderReqV3
 from src.gatepay.api.model.req.payment.query_refund_req_v3 import QueryRefundReqV3 as PaymentQueryRefundReqV3
+
+from src.gatepay.api.model.req.payment.query_refund_req import QueryRefundReq as PaymentQueryRefundReq
+
 from src.gatepay.api.model.req.payment.query_refund_support_chains_req import QueryRefundSupportChainsReqV3
 from src.gatepay.api.model.req.preview_req import PreviewReq
 from src.gatepay.api.model.req.qrcode.create_order_req import CreateOrderReq as QrCodeCreateOrderReq
@@ -51,26 +55,30 @@ from src.gatepay.client.gatepay_client import GatePayClient
 from src.gatepay.common.utils.random_utils import RandomUtils
 from src.gatepay.gatepay_config import GatePayConfig
 from src.gatepay.infrastructure.credential import Credential
+import time
+import jsonpath
+#allenby
+from src.gatepay.api.model.req.manage.save_req import SaveReq
 
+#no sdk api
+from src.gatepay.api.model.req.currencies_req import CurrenciesReq
 
 class GatePayClientTest(unittest.TestCase):
 
     def init_gate_pay_client(self):
-        """
-        åˆå§‹åŒ–GatePayå®¢æˆ·ç«¯
-        """
         gate_pay_config = GatePayConfig(
-            "http://dev.halftrust.xyz/gfpay",
+            "",
             30,
-            "mZ96D37oKk-HrWJc",
-            Credential("Mz6M_q4AkDnZCSoTDo03A6OtWzN5ut8_Uix3jyVjxAU=", "SkZlbKOqPoMwnxhl")
+            "",
+            Credential("", "")
         )
+
         return GatePayClient(gate_pay_config)
 
     def test_get_address_chains(self):
         chains_req = ChainsReq()
         chains_req.set_currency("USDT")
-        # è°ƒç”¨è·å–åœ°å€é“¾çš„æ–¹æ³•
+        # µ÷ÓÃ»ñÈ¡µØÖ·Á´µÄ·½·¨
         res=self.init_gate_pay_client().gets_address_chains(chains_req)
         print(res.get_data().__str__())
 
@@ -78,87 +86,107 @@ class GatePayClientTest(unittest.TestCase):
         res =self.init_gate_pay_client().gets_address_currencies()
         print(res.get_data().__str__())
 
-    def test_get_address_supported_convert_currencies(self):
+    def test_get_address_supported_convert_currencies(self,currency:str="USDT"):
         supported_convert_currencies_req = SupportedConvertCurrenciesReq()
-        supported_convert_currencies_req.set_currency("USDT")
-        res=self.init_gate_pay_client().get_address_supported_convert_currencies(supported_convert_currencies_req)
-        print(res.get_data().__str__())
+        supported_convert_currencies_req.set_currency(currency)
+        res=self.init_gate_pay_client().get_address_supported_convert_currencies(supported_convert_currencies_req).__dict__
+        print("»ñÈ¡µØÖ·Ö§¸¶Ö§³ÖÉÁ¶ÒµÄ±ÒÖÖ",res)
+        return res
 
-    def test_create_address_order(self):
+    def test_create_address_order(self,currency:str="USDT",amount:str="0.001",user_id:int=2124505156,
+                                  chain:str="TRX",full_curr_type:str="USDT_TRX"):
+        testdata={"merchantTradeNo":"9965839856","currency":"USDT","orderAmount":"10","env":
+            {"terminalType":"MINIAPP"},"goods":{"goodsName":"×Ô¶¯»¯¶©µ¥","goodsDetail":"×Ô¶¯»¯¶©µ¥£ºµØÖ·Ö§¸¶-Ö±¸¶"},
+                  "orderExpireTime":1758712237898,"returnUrl":"www.baidu.com","cancelUrl":"www.taobao.com",
+                  "merchantUserId":2124505156,"chain":"TRX","fullCurrType":"USDT_TRX"}
+
         env_req = EnvReq()
         env_req.set_terminal_type("MINIAPP")
 
-        # åˆ›å»ºå•†å“è¯·æ±‚å¯¹è±¡
+        # ´´½¨ÉÌÆ·ÇëÇó¶ÔÏó
         goods_req = GoodsReq()
         goods_req.set_goods_name("test")
         goods_req.set_goods_detail("testDetail")
-        # åˆ›å»ºåœ°å€è®¢å•è¯·æ±‚å¯¹è±¡
+        # ´´½¨µØÖ·¶©µ¥ÇëÇó¶ÔÏó
         create_order_req = AddressCreateOrderReq()
-        create_order_req.set_merchant_trade_no(RandomUtils.generate_nonce(24))
-        create_order_req.set_currency("USDT")
-        create_order_req.set_order_amount("9.9")
+        create_order_req.set_merchant_trade_no(RandomUtils.generate_nonce(10))#Ô­24
+        create_order_req.set_currency(currency)
+        create_order_req.set_order_amount(amount)
         create_order_req.set_env(env_req)
         create_order_req.set_goods(goods_req)
-        create_order_req.set_order_expire_time(int(time.time() * 1000) + 3 * 60 * 60 * 1000)
+        time_ms=int(time.time() * 1000) + 8 * 60 * 60 * 1000
+        create_order_req.set_order_expire_time(time_ms)#Ô­int(time.time() * 1000) + 3 * 60 * 60 * 1000
         create_order_req.set_return_url("https://www.gate.com/")
         create_order_req.set_cancel_url("https://www.gate.com/")
-        create_order_req.set_merchant_user_id(6790011)
-        create_order_req.set_chain("ETH")
-        create_order_req.set_full_curr_type("USDT_ETH")
-        create_order_req.set_channel_id("")
+        create_order_req.set_merchant_user_id(user_id)
+        create_order_req.set_chain(chain)
+        create_order_req.set_full_curr_type(full_curr_type)
+        # create_order_req.set_channel_id("")
         print("merchantOrderNo:"+create_order_req.get_merchant_trade_no())
-        create_order_resp=self.init_gate_pay_client().create_address_order(create_order_req)
-        print(create_order_resp.get_data().__str__())
+        create_order_resp=self.init_gate_pay_client().create_address_order(create_order_req).__dict__
+        print(create_order_resp)
+        return create_order_resp,create_order_req.get_merchant_trade_no()
 
-    def test_query_address_order(self):
+    def test_query_address_order(self,prepay_id:str="35425315479093450",merchant_trade_no:str="43wGhuujHKwAoLXRd7mMjihU"):
         query_order_req=AddressQueryOrderReq()
-        query_order_req.set_prepay_id("35297827964846503")
-        query_order_req.set_merchant_trade_no("43wGhuujHKwAoLXRd7mMjihU")
-        print(self.init_gate_pay_client().query_address_order(query_order_req).get_data().__str__())
+        query_order_req.set_prepay_id(prepay_id)
+        query_order_req.set_merchant_trade_no(merchant_trade_no)#ÉÌ»§ÏµÍ³½»Ò×ºÅ¡£²»ÊäÈëÒ²¿ÉÒÔ
+        # print(self.init_gate_pay_client().query_address_order(query_order_req).get_data().__str__())
+        res=self.init_gate_pay_client().query_address_order(query_order_req).__dict__
+        print("²éÑ¯µØÖ·Ö§¸¶¶©µ¥ÁĞ±í-·µ»ØÖµ:",res)
+        return res
 
-        # todo test è®¢å•çŠ¶æ€æœªç»ˆæ€
-    def test_create_address_refund(self):
+    def test_create_address_refund(self,prepay_id:str="35432002743304519",refund_amount:str="0.001",
+                                   receiver_id:int=2124505156):
         address_create_refund_req=AddressCreateRefundReq()
-        address_create_refund_req.set_prepay_id("35297827964846503")
-        address_create_refund_req.set_refund_request_id("38242376781523689472")
-        address_create_refund_req.set_refund_amount("9.9")
+        address_create_refund_req.set_prepay_id(prepay_id)#ÉÌ¼Ò¶©µ¥ºÅ
+        address_create_refund_req.set_refund_request_id(RandomUtils.generate_nonce(9))#ÍË¿î¶©µ¥ºÅ£¬¿ÉÒÔËæ»ú 38242376781523689472
+        address_create_refund_req.set_refund_amount(refund_amount)
         address_create_refund_req.set_refund_reason("test refund")
-        address_create_refund_req.set_receiver_id(6790011)
-        print(self.init_gate_pay_client().create_address_refund(address_create_refund_req).get_data().__str__())
+        address_create_refund_req.set_receiver_id(receiver_id)
+        # print(self.init_gate_pay_client().create_address_refund(address_create_refund_req).get_data().__str__())
+        res=self.init_gate_pay_client().create_address_refund(address_create_refund_req).__dict__
+        return res
 
-
-        # todo test è®¢å•çŠ¶æ€æœªç»ˆæ€
-    def test_create_address_refund_convert(self):
+        # todo test ¶©µ¥×´Ì¬Î´ÖÕÌ¬
+    def test_create_address_refund_convert(self,prepay_id:str="35425837317750961",amount:str="1"):
         address_create_refund_req=AddressCreateRefundConvertReq()
-        address_create_refund_req.set_prepay_id("35297827964846503")
-        address_create_refund_req.set_refund_request_id("38242376781533689472")
-        address_create_refund_req.set_refund_order_amount("9.9")
-        address_create_refund_req.set_refund_order_currency("ETH")
-        address_create_refund_req.set_refund_pay_currency("ETH")
-        address_create_refund_req.set_refund_pay_amount("9.9")
+        address_create_refund_req.set_refund_request_id(RandomUtils.generate_nonce(9))#Ëæ»úÊı 38242376781533689472
+        address_create_refund_req.set_prepay_id(prepay_id)
+        address_create_refund_req.set_refund_order_currency("USDT")#ETH
+        address_create_refund_req.set_refund_order_amount(amount)
+        address_create_refund_req.set_refund_pay_currency("USDT")#ETH
+        address_create_refund_req.set_refund_pay_amount(amount)
         address_create_refund_req.set_refund_reason("test refund")
-        address_create_refund_req.set_receiver_id(6790011)
+        address_create_refund_req.set_receiver_id(2124505156)
         print(self.init_gate_pay_client().create_address_refund_convert(address_create_refund_req).get_data().__str__())
+        res=self.init_gate_pay_client().create_address_refund_convert(address_create_refund_req).__dict__
+        print("µØÖ·Ö§¸¶ÉÁ¶ÒÍË¿î-·µ»ØÖµ",res)
+        return res
 
-
-    def test_address_transaction_detail(self):
+    def test_address_transaction_detail(self,prepay_id:str="35297827964846503"):
         transaction_detail=TransactionDetailReq()
-        transaction_detail.set_prepay_id("35297827964846503")
-        print(self.init_gate_pay_client().address_transaction_detail(transaction_detail).get_data().__str__())
+        transaction_detail.set_prepay_id(prepay_id)
+        res=self.init_gate_pay_client().address_transaction_detail(transaction_detail).__dict__
+        print("²éÑ¯Á´ÉÏ½»Ò×ÏêÇé£º",res)
+        return res
 
-
-    def test_query_bill_orders(self):
+    def test_query_bill_orders(self,order_id_no:str="yLEKbCFFJ",currency:str="USDT"):
         query_orders_req=QueryOrdersReq()
-        query_orders_req.set_start_time(1705297715000)
-        query_orders_req.set_end_time(1705297825000)
+        time_start=int(time.time() * 1000)-30*24 * 60 * 60 * 1000
+        time_end = int(time.time() * 1000) + 10 * 60 * 60 * 1000
+        print(time_start,time_end)
+        query_orders_req.set_start_time(time_start)#1705297715000
+        query_orders_req.set_end_time(time_end)#1758737591957
         query_orders_req.set_page(1)
         query_orders_req.set_count(10)
-        query_orders_req.set_currency("USDT")
-        query_orders_req.set_order_type("1")
-        query_orders_req.set_order_id_no("1689667326891627")
-        print(self.init_gate_pay_client().query_bill_orders(query_orders_req).get_data().__str__())
+        query_orders_req.set_currency(currency)
+        query_orders_req.set_order_type("2")
+        query_orders_req.set_order_id_no(order_id_no)
+        # print(self.init_gate_pay_client().query_bill_orders(query_orders_req).get_data().__str__())
+        res=self.init_gate_pay_client().query_bill_orders(query_orders_req).__dict__
+        return res
 
-    # todo fail
     def test_save_channel_manage(self):
         custom_field=CustomField()
         custom_field.set_code("87")
@@ -171,7 +199,7 @@ class GatePayClientTest(unittest.TestCase):
         merchant_channel.set_desc("test")
         merchant_channel.set_channel_type("0")
         merchant_channel.set_chain("Lorem sed elit id aliqua")
-        merchant_channel.set_address("è¾½å®çœ å®‰ä¹¡å¿ èŠœæ¹–å¿ å¹¸è·¯681å· 93å•å…ƒ")
+        merchant_channel.set_address("ÁÉÄşÊ¡ °²ÏçÏØ ÎßºşÏØ ĞÒÂ·681ºÅ 93µ¥Ôª")
         merchant_channel.set_create_time(1723004848459)
         merchant_channel.set_update_time(int(datetime.now().timestamp()*1000))
 
@@ -179,35 +207,45 @@ class GatePayClientTest(unittest.TestCase):
         save_req.set_merchant_channel_list([merchant_channel])
         print(self.init_gate_pay_client().save_channel_manage(save_req).get_data().__str__())
 
-    def test_list_channel_manage(self):
+    def test_list_channel_manage(self,channel_id:str='100'):
         list_req = ListReq()
-        list_req.set_channel_id("100")
+        list_req.set_channel_id(channel_id)
         list_req.set_page(1)
         list_req.set_count(10)
-        print(self.init_gate_pay_client().list_channel_manage(list_req).get_data().__str__())
-
+        res=self.init_gate_pay_client().list_channel_manage(list_req).__dict__
+        print("¿Í»§ÇşµÀÁĞ±í",res)
+        return res
 
     # todo fail
-    def test_update_channel_manage(self):
+    def test_update_channel_manage(self,channel_id:str="44"):
         custom_field = CustomField()
         custom_field.set_code("87")
         custom_field.set_name("sam")
         custom_field.set_value("test")
 
         merchant_channel= MerchantChannel()
-        merchant_channel.set_channel_id("44")
+        merchant_channel.set_channel_id(channel_id)
         merchant_channel.set_custom_fields([custom_field])
 
         update_req =UpdateReq()
         update_req.set_merchant_channel_list([merchant_channel])
-        print(self.init_gate_pay_client().update_channel_manage(update_req).get_data().__str__())
+        res=self.init_gate_pay_client().update_channel_manage(update_req).__dict__
+        print("¸üĞÂ¿Í»§ÇşµÀ-·µ»Ø½á¹û£º",res)
+        return res
 
-    def test_delete_channel_manage(self):
+    def test_delete_channel_manage(self,channel_id:str="channel_id"):
         delete_req = DeleteReq()
-        delete_req.set_channel_id("100")
-        print(self.init_gate_pay_client().delete_channel_manage(delete_req).get_data().__str__())
-
-    def test_create_checkout_order(self):
+        delete_req.set_channel_id(channel_id)
+        res=self.init_gate_pay_client().delete_channel_manage(delete_req).__dict__
+        print("É¾³ı¿Í»§ÇşµÀ·µ»Ø£º",res)
+        return res
+    def test_create_checkout_order(self,currency:str="USDT",amount:str="0.0001",user_id:int=2124505156
+                                   ,chain:str="BSC",full_curr_type:str="USDT_BSC"):
+        test_data={"merchantTradeNo":"M1465894218","currency":"USDT","orderAmount":"0.0001",
+                   "payCurrency":"USDT","env":{"terminalType":"1234"},"goods":{"goodsName":
+                   "autocheckout loragoodsName","goodsDetail":"autocheckout loragoodsDetail"},
+                   "returnUrl":"https://www.baidu.com","cancelUrl":"www.baidu.com","merchantUserId":2124505156,
+                   "chain":"BSC","fullCurrType":"USDT_BSC"}
         env_req = EnvReq()
         env_req.set_terminal_type("APP")
 
@@ -215,38 +253,40 @@ class GatePayClientTest(unittest.TestCase):
         goods_req.set_goods_type("02")
         goods_req.set_goods_name("test")
         goods_req.set_goods_detail("testDetail")
-
-
         create_order_req=CheckOutCreateOrderReq()
         create_order_req.set_merchant_trade_no(RandomUtils.generate_nonce(24))
-        create_order_req.set_currency("USDT")
-        create_order_req.set_order_amount("10")
-        create_order_req.set_pay_currency("USDT")
+        create_order_req.set_currency(currency)
+        create_order_req.set_order_amount(amount)
+        create_order_req.set_pay_currency(currency)
         create_order_req.set_env(env_req)
         create_order_req.set_goods(goods_req)
-        create_order_req.set_merchant_user_id(10002)
+        create_order_req.set_merchant_user_id(user_id)
 
         create_order_req.set_return_url("https://lotkeys.com/tr/gate-payment-response")
         create_order_req.set_cancel_url("https://lotkeys.com/tr/gate-payment-response")
-        create_order_req.set_chain("ETH")
-        create_order_req.set_full_curr_type("USDT_ETH")
-        create_order_req.set_channel_id("123")
+        create_order_req.set_chain(chain)
+        create_order_req.set_full_curr_type(full_curr_type)
+        # create_order_req.set_channel_id("123")#²»ÓÃÕâ¸öºÅ
         print("merchantOrderNo:" + create_order_req.get_merchant_trade_no())
-        print(self.init_gate_pay_client().create_checkout_order(create_order_req).get_data().__str__())
+        # print(self.init_gate_pay_client().create_checkout_order(create_order_req).get_data().__str__())
+        res=self.init_gate_pay_client().create_checkout_order(create_order_req).__dict__
+        print(res)
+        return res
 
-    # todo  çŠ¶æ€æœªåˆ°è¾¾çŠ¶æ€
-    def test_create_checkout_refund(self):
+    def test_create_checkout_refund(self,prepay_id:str="35425551702294728",receiver_id:int=2124505156,amount:str="0.0001"):
         create_refund_req=CheckOutCreateRefundReq()
-        create_refund_req.set_prepay_id("35301792219791413")
-        create_refund_req.set_refund_request_id("1860036668897340")
-        create_refund_req.set_refund_order_amount("10.0")
-        create_refund_req.set_refund_pay_amount("10.0")
+        create_refund_req.set_prepay_id(prepay_id)#GatePay¶©µ¥ºÅ :35419639679942788
+        create_refund_req.set_refund_request_id(RandomUtils.generate_nonce(9))#ÉÌ»§ÍË¿î¶©µ¥ºÅ£¬1860036668897340Ëæ»úÊı
+        create_refund_req.set_refund_order_amount(amount)
+        create_refund_req.set_refund_pay_amount(amount)
         create_refund_req.set_refund_pay_currency("USDT")
         create_refund_req.set_refund_order_currency("USDT")
         create_refund_req.set_refund_reason("test refund")
-        create_refund_req.set_receiver_id(6790011)
-        print(self.init_gate_pay_client().create_checkout_refund(create_refund_req).get_data().__str__())
-
+        create_refund_req.set_receiver_id(receiver_id)
+        # print(self.init_gate_pay_client().create_checkout_refund(create_refund_req).get_data().__str__())
+        res=self.init_gate_pay_client().create_checkout_refund(create_refund_req).__dict__
+        print(res)
+        return res
     def test_query_convert_currency(self):
         query_currency_req=QueryCurrencyReq()
         query_currency_req.set_side("sell")
@@ -258,197 +298,321 @@ class GatePayClientTest(unittest.TestCase):
         query_pair_req.set_side("buy")
         print(self.init_gate_pay_client().query_convert_pair(query_pair_req).get_data().__str__())
 
-    def test_preview_convert(self):
+    def test_preview_convert(self,amount:str="1"):
         preview_req=PreviewReq()
-        preview_req.set_buy_amount("0.01")
+        preview_req.set_buy_amount(amount)
         preview_req.set_buy_currency("GT")
         preview_req.set_sell_currency("USDT")
         print(self.init_gate_pay_client().preview_convert(preview_req).get_data().__str__())
+        res=self.init_gate_pay_client().preview_convert(preview_req).__dict__
+        print("Ô¤ÀÀ±¨¼Û·µ»ØÖµ£º",res)
+        return res
 
-    # todo createOrder fail
     def test_create_convert_order(self):
+        """
+        ÉÁ¶ÒÏÂµ¥£¬²»Í¬±ÒÖÖÖ®¼ä¿ìËÙÉÁ¶Ò
+        :return:
+        """
         create_order_req=ConvertCreateOrderReq()
         create_order_req.set_quote_id("PAY-"+RandomUtils.generate_nonce(8))
         create_order_req.set_client_req_id(RandomUtils.generate_nonce(11))
         create_order_req.set_price("0.04268034")
-        create_order_req.set_sell_currency("USDT")
-        create_order_req.set_sell_amount("0.23429989")
-        create_order_req.set_buy_currency("GT")
+        create_order_req.set_sell_currency("USDT")#Âô¼Ò±ÒÖÖ
+        create_order_req.set_sell_amount("0.23429989")#Ô­Ê¼0.23429989
+        create_order_req.set_buy_currency("GT")#Âò¼Ò±ÒÖÖ
         create_order_req.set_buy_amount("0.01")
 
         print("clientReqId:" + create_order_req.get_client_req_id())
-        print(self.init_gate_pay_client().create_convert_order(create_order_req).get_data().__str__())
+        res= self.init_gate_pay_client().create_convert_order(create_order_req).__dict__
+        print("ÉÁ¶ÒÏÂµ¥·µ»ØÊı¾İ£º",res)
+        return res
 
-    def test_query_convert_order(self):
+    def test_create_convert_order_new(self,quote_id:str,amount:str="1"):
+        """
+        ÉÁ¶ÒÏÂµ¥£¬²»Í¬±ÒÖÖÖ®¼ä¿ìËÙÉÁ¶Ò
+        :return:
+        """
+        create_order_req = ConvertCreateOrderReq()
+        # create_order_req.set_quote_id("PAY-" + RandomUtils.generate_nonce(8))
+        create_order_req.set_quote_id(quote_id)
+        create_order_req.set_client_req_id(RandomUtils.generate_nonce(10))
+        # create_order_req.set_price("0.04268034")
+        create_order_req.set_sell_currency("USDT")  # Âô¼Ò±ÒÖÖ
+        create_order_req.set_sell_amount(amount)  # Ô­Ê¼0.23429989
+        create_order_req.set_buy_currency("GT")  # Âò¼Ò±ÒÖÖ
+        create_order_req.set_buy_amount(amount)
+
+        print("clientReqId:",create_order_req.get_client_req_id())
+        print("quote_id:",create_order_req.get_quote_id())
+        # print(self.init_gate_pay_client().create_convert_order(create_order_req).get_data().__str__())
+        res = self.init_gate_pay_client().create_convert_order(create_order_req).__dict__
+        print("ÉÁ¶ÒÏÂµ¥·µ»ØÊı¾İ£º", res)
+        return res
+
+    def test_create_convert_preview(self):
+        """
+        ÉÁ¶ÒÏÂµ¥Ç°ĞèÒª²éÑ¯¶ÔÓ¦µÄÔ¤ÀÀ±¨¼ÛºÍquoteId
+        :return:
+        """
+        # Í¨¹ısdk½Ó¿Úv1/pay/convert/preview£¬Ô¤ÀÀ±¨¼Û£º
+        # ÇëÇó         { "buyCurrency": "GT", "buyAmount": "", "sellCurrency": "USDT","sellAmount": "0.1"        }
+        # ·µ»Ø£º
+        convert_preview = {"clientReqId": "8320289173", "sellCurrency": "USDT", "buyCurrency": "GT", "buyAmount": "1",
+                           "sellAmount": "1", "quoteId": "PAY-7d6fef9d"}
+        # Êµ¼ÊÇëÇó£º
+        # {"clientReqId": "3845654414", "sellCurrency": "USDT", "buyCurrency": "GT", "buyAmount": "0.0060247",
+        # "sellAmount": "0.1", "quoteId": "PAY-820da3ec"}
+
+        create_order_req = ConvertCreateOrderReq()
+        # quote_id="PAY-"+RandomUtils.generate_nonce(8)
+        create_order_req.set_quote_id(convert_preview['quoteId'])
+        # create_order_req.set_quote_id("PAY-bb1d7082")
+        # create_order_req.set_client_req_id(RandomUtils.generate_nonce(10))#5813764260
+        create_order_req.set_client_req_id(convert_preview['clientReqId'])  # 5813764260
+        # create_order_req.set_price("")
+        create_order_req.set_sell_currency("USDT")  # Âô¼Ò±ÒÖÖ
+        create_order_req.set_sell_amount("1")  # Ô­Ê¼0.23429989
+        create_order_req.set_buy_currency("GT")  # Âò¼Ò±ÒÖÖ
+        create_order_req.set_buy_amount("1")
+
+        print("clientReqId:" + create_order_req.get_client_req_id())
+        # print(self.init_gate_pay_client().create_convert_order(create_order_req).get_data().__str__())
+        res = self.init_gate_pay_client().create_convert_order(create_order_req).__dict__
+        print("ÉÁ¶ÒÏÂµ¥·µ»ØÊı¾İ£º", res)
+        return res
+
+    def test_query_convert_order(self,order_id:str="35424772165861688"):
         convert_query_order_req =ConvertQueryOrderReq()
-        convert_query_order_req.set_order_id("326850433152987136")
-        print(self.init_gate_pay_client().query_convert_order(convert_query_order_req).get_data().__str__())
+        convert_query_order_req.set_order_id(order_id)
+        # print(self.init_gate_pay_client().query_convert_order(convert_query_order_req).get_data().__str__())
+        res=self.init_gate_pay_client().query_convert_order(convert_query_order_req).__dict__
+        print("order_id:",order_id)
+        print("²éÑ¯ÉÁ¶Ò¶©µ¥£º",res)
+        return res
 
 
-    def test_create_gift(self):
+    def test_create_gift(self,template_id:str="293409440220057600",currency:str="USDT",amount:str="0.99"):
         create_req =CreateReq()
         create_req.set_title("anlitest20250210001")
-        create_req.set_template_id("293409440220057600")
-        create_req.set_currency("USDT")
-        create_req.set_amount("0.99")
-        print(self.init_gate_pay_client().create_gift(create_req).get_data().__str__())
+        create_req.set_template_id(template_id)
+        create_req.set_currency(currency)
+        create_req.set_amount(amount)
+        # print(self.init_gate_pay_client().create_gift(create_req).get_data().__str__())
+        get_data=self.init_gate_pay_client().create_gift(create_req).get_data()
+        return get_data
 
     def test_list_gift_temp(self):
+        """
+        ÁĞ³öÀñÆ·¿¨Ä£°æ£¬ÒªÀñÆ·¿¨Ä£°æid¼´¿É
+        :return:
+        """
         list_temp_req =ListTempReq()
         print(self.init_gate_pay_client().list_gift_temp(list_temp_req).get_data().__str__())
+        res=self.init_gate_pay_client().list_gift_temp(list_temp_req)
+        return res
 
-    # todo ç¼ºä¹ç¤¼å“å¡å·
-    def test_query_gift(self):
+    def test_query_gift(self,card_numbe:str=""):
         query_req =QueryReq()
-        print(self.init_gate_pay_client().query_gift(query_req).get_data().__str__())
-
-
-    def test_create_qr_code_order(self):
+        query_req.set_card_number(card_numbe)
+        query_req.set_key("")
+        # print(self.init_gate_pay_client().query_gift(query_req).get_data().__str__())
+        res=self.init_gate_pay_client().query_gift(query_req).__dict__
+        print("²é¿´ÀñÆ·¿¨ÁĞ±í·µ»ØÖµ£º",res)
+        return res
+    def test_create_qr_code_order(self,currency:str="USDT",amount:str="0.1"):
         env_req = EnvReq()
         env_req.set_terminal_type("APP")
 
-        # åˆ›å»ºå•†å“è¯·æ±‚å¯¹è±¡
+        # ´´½¨ÉÌÆ·ÇëÇó¶ÔÏó
         goods_req = GoodsReq()
         goods_req.set_goods_name("NF2T")
         goods_req.set_goods_detail("nef-book")
 
-        # åˆ›å»ºåœ°å€è®¢å•è¯·æ±‚å¯¹è±¡
+        # ´´½¨µØÖ·¶©µ¥ÇëÇó¶ÔÏó
         create_order_req = QrCodeCreateOrderReq()
         create_order_req.set_merchant_trade_no(RandomUtils.generate_nonce(24))
-        create_order_req.set_currency("USDT")
-        create_order_req.set_order_amount("9.9")
+        create_order_req.set_currency(currency)
+        create_order_req.set_order_amount(amount)
         create_order_req.set_env(env_req)
         create_order_req.set_goods(goods_req)
         create_order_req.set_return_url("https://www.gate.com/")
-        print("merchantOrderNo:"+create_order_req.get_merchant_trade_no())
-        create_order_resp=self.init_gate_pay_client().create_qr_code_order(create_order_req)
-        print(create_order_resp.get_data().__str__())
+        merchantOrderNo=create_order_req.get_merchant_trade_no()
+        print("merchantOrderNo:",merchantOrderNo)
+        create_order_resp=self.init_gate_pay_client().create_qr_code_order(create_order_req).__dict__
+        print("create_order_resp:",create_order_resp)
+        return create_order_resp,merchantOrderNo
 
-    def test_create_web_order(self):
+    def test_create_web_order(self,currency:str="USDT",order_amount:str="0.001"):
         env_req = EnvReq()
         env_req.set_terminal_type("MINIAPP")
 
-        # åˆ›å»ºå•†å“è¯·æ±‚å¯¹è±¡
+        # ´´½¨ÉÌÆ·ÇëÇó¶ÔÏó
         goods_req = GoodsReq()
-        goods_req.set_goods_name("25000000å…ƒå®")
-        goods_req.set_goods_detail("å……å€¼")
+        goods_req.set_goods_name("25000000Ôª±¦")
+        goods_req.set_goods_detail("³äÖµ")
 
-        # åˆ›å»ºåœ°å€è®¢å•è¯·æ±‚å¯¹è±¡
+        # ´´½¨µØÖ·¶©µ¥ÇëÇó¶ÔÏó
         create_order_req = PaymentCreateOrderReq()
         create_order_req.set_merchant_trade_no(RandomUtils.generate_nonce(14))
-        create_order_req.set_currency("USDT")
-        create_order_req.set_order_amount("9.9")
+        create_order_req.set_currency(currency)
+        create_order_req.set_order_amount(order_amount)
         create_order_req.set_env(env_req)
         create_order_req.set_goods(goods_req)
-        create_order_req.set_channel_id("123")
+        # create_order_req.set_channel_id("123")
         create_order_req.set_extend_info("1_elbt01_16882172126048")
+        merchantOrderNo=create_order_req.get_merchant_trade_no()
+        print("merchantOrderNo:",merchantOrderNo)
+        create_order_resp = self.init_gate_pay_client().create_web_order(create_order_req).__dict__
+        print("create_order_resp",create_order_resp)
+        return create_order_resp,merchantOrderNo
 
-        print("merchantOrderNo:" + create_order_req.get_merchant_trade_no())
-        create_order_resp = self.init_gate_pay_client().create_web_order(create_order_req)
-        print(create_order_resp.get_data().__str__())
-
-    def test_query_web_order(self):
+    def test_query_web_order(self,prepay_id:str="35297827964846503",merchant_trade_no:str="43wGhuujHKwAoLXRd7mMjihU"):
         web_query_order_req=WebQueryOrderReq()
-        web_query_order_req.set_prepay_id("35297827964846503")
-        web_query_order_req.set_merchant_trade_no("43wGhuujHKwAoLXRd7mMjihU")
-        print(self.init_gate_pay_client().query_web_order(web_query_order_req).get_data().__str__())
+        web_query_order_req.set_prepay_id(prepay_id)
+        web_query_order_req.set_merchant_trade_no(merchant_trade_no)
+        res=self.init_gate_pay_client().query_web_order(web_query_order_req).__dict__
+        print("²éÑ¯¶©µ¥:",res)
+        return res
 
-    # todo å…³é—­è®¢å•å¤±è´¥
-    def test_close_web_order(self):
+
+    # todo ¹Ø±Õ¶©µ¥Ê§°Ü
+    def test_close_web_order(self,prepay_id:str="35297827964846503",merchant_trade_no:str="43wGhuujHKwAoLXRd7mMjihU"):
         close_order_req=CloseOrderReq()
-        close_order_req.set_prepay_id("35297827964846503")
-        close_order_req.set_merchant_trade_no("43wGhuujHKwAoLXRd7mMjihU")
-        print(self.init_gate_pay_client().close_web_order(close_order_req).get_data().__str__())
+        close_order_req.set_prepay_id(prepay_id)
+        close_order_req.set_merchant_trade_no(merchant_trade_no)
+        res=self.init_gate_pay_client().close_web_order(close_order_req).__dict__
+        print("¹Ø±Õ¶©µ¥·µ»Ø½á¹û",res)
+        return res
 
-    def test_create_web_refund(self):
+    def test_create_web_refund(self,prepay_id:str="35432097232453869",amount:str="1"):
         refund_order_req=PaymentCreateRefundReq()
-        refund_order_req.set_prepay_id("35297827964846503")
-        refund_order_req.set_refund_amount("9.9")
-        print(self.init_gate_pay_client().create_web_refund(refund_order_req).get_data().__str__())
+        refund_order_req.set_prepay_id(prepay_id)
+        refund_order_req.set_refund_amount(amount)
+        refund_order_req.set_refund_request_id(RandomUtils.generate_nonce(11))
+        refund_request_id=refund_order_req.get_refund_request_id()#"GzpNbjuLnH4"
+        res=self.init_gate_pay_client().create_web_refund(refund_order_req).__dict__
+        print("´´½¨ÍË¿î¶©µ¥",res)
+        return res,refund_request_id
 
-    def test_create_batch_transfer(self):
+    def test_create_batch_transfer(self,user_id:str="6790011",amount:str="1"):
         batch_order=BatchOrder()
-        batch_order.set_user_id(6790011)
-        batch_order.set_amount("2")
+        batch_order.set_user_id(user_id)
+        batch_order.set_amount(amount)
 
         create_batch_transfer_req=CreateBatchTransferReq()
         create_batch_transfer_req.set_batch_id(RandomUtils.generate_nonce(14))
         create_batch_transfer_req.set_merchant_batch_no(RandomUtils.generate_nonce(24))
         create_batch_transfer_req.set_biz_scene("DIRECT_TRANSFER")
-        create_batch_transfer_req.set_merchant_id("10002")
-        create_batch_transfer_req.set_client_id("mZ96D37oKk-HrWJc")
-        create_batch_transfer_req.set_currency("USDT")
-        create_batch_transfer_req.set_name("Larry")
+        create_batch_transfer_req.set_merchant_id("")#Ô­
+        create_batch_transfer_req.set_client_id("aaaa")#
+        create_batch_transfer_req.set_name("")
         create_batch_transfer_req.set_description("bonus")
         create_batch_transfer_req.set_batch_order_list([batch_order])
         print("merchantBatchNo:"+create_batch_transfer_req.get_merchant_batch_no())
         print(self.init_gate_pay_client().create_batch_transfer(create_batch_transfer_req).get_data().__str__())
+        return create_batch_transfer_req
+    def test_query_batch_transfer(self,batch_id,merchant_batch_no):
+        """
+        ÅúÁ¿×ªÕË²éÑ¯
+        :param batch_id: Åú´Îid
+        :param merchant_batch_no: ÉÌ»§Åú´Îµ¥ºÅ
+        :return:
+        """
 
-    def test_query_batch_transfer(self):
+        print("ÅúÁ¿×ªÕË²éÑ¯-¿ªÊ¼",batch_id,merchant_batch_no)
         query_batch_transfer_req=QueryBatchTransferReq()
-        query_batch_transfer_req.set_batch_id("UpnEUu3NmWZX8L")
-        query_batch_transfer_req.set_merchant_batch_no("E2CUCbspERZPjl3yQLqCMSFv")
-        query_batch_transfer_req.set_detail_status("ALL")
-        print(self.init_gate_pay_client().query_batch_transfer(query_batch_transfer_req).get_data().__str__())
+        query_batch_transfer_req.set_batch_id(batch_id)#
+        query_batch_transfer_req.set_merchant_batch_no(merchant_batch_no)#
+        #query_batch_transfer_req.set_detail_status("ALL")
+        print("ÅúÁ¿×ªÕË²éÑ¯-½áÊø",self.init_gate_pay_client().query_batch_transfer(query_batch_transfer_req).get_data().__str__())
 
     def test_query_balance(self):
+        """
+        ²éÑ¯Óà¶î£¬¸öÈËÕË»§Óà¶î¡£ÌØ±ğËµÃ÷£¬ĞèÒªÔ¤·¢»·¾³²Å¿ÉÒÔ²éÑ¯
+        :return:
+        """
         query_balance_req=QueryBalanceReq()
         balance=self.init_gate_pay_client().query_balance(query_balance_req)
         print(balance.__str__())
+        return balance
 
-    def test_create_withdraw_order(self):
+    def test_create_withdraw_order(self,currency:str="USDT"):
         with_draw=Withdraw()
-        with_draw.set_currency("USDT")
+        with_draw.set_currency(currency)
         with_draw.set_amount("0.001")
-        with_draw.set_chain("ETH")
-        with_draw.set_address("0x1234567890abcdef")
-        with_draw.set_memo("Payment for services-1")
+        with_draw.set_chain("TRC")
+        with_draw.set_address("")#¾²Ì¬ÊÕ¿îÂë-Ãû³Æ£º
+        # with_draw.set_memo("Payment for services-1")
         with_draw.set_merchant_withdraw_id(RandomUtils.generate_nonce(19))
         with_draw.set_fee_type(1)
 
         with_draw_create_order_req=WithdrawCreateOrderReq()
         with_draw_create_order_req.set_withdraws([with_draw])
         with_draw_create_order_req.set_batch_id(RandomUtils.generate_nonce(24))
-        print("batchId:"+with_draw_create_order_req.get_batch_id())
-        print(self.init_gate_pay_client().create_withdraw_order(with_draw_create_order_req).get_data().__str__())
+        batchId=with_draw_create_order_req.get_batch_id()
+        print("batchId:"+batchId)
+        print("Ç®°üÌáÏÖÏÂ·¢¶©µ¥-·µ»Ø½á¹û",self.init_gate_pay_client().create_withdraw_order(with_draw_create_order_req).__dict__)
+        return batchId
 
-    def test_query_withdraw_order(self):
+    def test_query_withdraw_order(self,batch_id="7OMriYhPEUyHfdUVbkYCM3kp"):
         withdraw_query_order_req=WithdrawQueryOrderReq()
-        withdraw_query_order_req.set_batch_id("237394559478075555")
+        withdraw_query_order_req.set_batch_id(batch_id)
         withdraw_query_order_req.set_detail_status("ALL")
-        print(self.init_gate_pay_client().query_withdraw_order(withdraw_query_order_req).get_data().__str__())
+        res=self.init_gate_pay_client().query_withdraw_order(withdraw_query_order_req).__dict__
+        print("²éÑ¯ÌáÏÖ¶©µ¥£º",res)
+        return res
 
-    def test_query_withdraw_chains(self):
+    def test_query_withdraw_chains(self,currency:str="GT"):
         query_chains_req=QueryChainsReq()
-        query_chains_req.set_currency("GT")
-        print(self.init_gate_pay_client().query_withdraw_chains(query_chains_req).get_data().__str__())
+        query_chains_req.set_currency(currency)
+        #²âÊÔ»·¾³²é²»µ½
+        # print(self.init_gate_pay_client().query_withdraw_chains(query_chains_req).get_data().__str__())
+        res=self.init_gate_pay_client().query_withdraw_chains(query_chains_req).__dict__
+        print("²éÑ¯±ÒÖÖÖ§³ÖµÄÁ´£¨/v1/pay/wallet/currency_chains£©-Éú²ú»·¾³:",res)
 
-    def test_query_withdraw_balance(self):
+
+    def test_query_withdraw_balance(self,currency:str="USDT"):
+        """
+        :param currency: ±ÒÖÖ
+        :return:
+        """
         query_chains_req=WithdrawQueryBalanceReq()
-        query_chains_req.set_currency("GT")
-        print(self.init_gate_pay_client().query_withdraw_balance(query_chains_req).get_data().__str__())
-
-    # è¯¥æ¥å£ä¸å­˜åœ¨
-    def test_query_withdraw_status(self):
+        query_chains_req.set_currency(currency)
+        res=self.init_gate_pay_client().query_withdraw_balance(query_chains_req).get_data()
+        print("²éÑ¯ÌáÏÖÖ§³Ö±ÒÖÖ£º",res)
+        return res
+    # ¸Ã½Ó¿Ú²»´æÔÚ
+    def test_query_withdraw_status(self,currency:str="USDT"):
+        print("=====test_query_withdraw_status=======")
         query_status_req=QueryStatusReq()
-        query_status_req.set_currency("USDT")
-        print(self.init_gate_pay_client().query_withdraw_status(query_status_req).get_data().__str__())
+        query_status_req.set_currency(currency)
+        res=self.init_gate_pay_client().query_withdraw_status(query_status_req).__dict__
+        print("²éÑ¯ÌáÏÖ×´Ì¬£º",res)
+        return None
 
     def test_query_web_order_v3(self):
         web_query_order_req=WebQueryOrderReqV3()
         web_query_order_req.set_prepay_id("35297827964846503")
         web_query_order_req.set_merchant_trade_no("43wGhuujHKwAoLXRd7mMjihU")
-        print(self.init_gate_pay_client_v3().query_web_order_v3(web_query_order_req).get_data().__str__())
+        print(self.init_gate_pay_client().query_web_order_v3(web_query_order_req).get_data().__str__())
 
     def test_query_web_refund_support_chains_v3(self):
         query_refund_support_chains_req=QueryRefundSupportChainsReqV3()
         query_refund_support_chains_req.set_currency("USDT")
-        print(self.init_gate_pay_client_v3().query_web_refund_support_chains_v3(query_refund_support_chains_req).get_data().__str__())
+        print(self.init_gate_pay_client().query_web_refund_support_chains_v3(query_refund_support_chains_req).get_data().__str__())
 
     def test_query_web_refund_v3(self):
         query_refund_req=PaymentQueryRefundReqV3()
         query_refund_req.set_refund_request_id("35297827964846503")
-        print(self.init_gate_pay_client_v3().query_web_refund_v3(query_refund_req).get_data().__str__())
+        print(self.init_gate_pay_client().query_web_refund_v3(query_refund_req).get_data().__str__())
+
+    def test_query_web_refund(self,refund_request_id:str="GzpNbjuLnH4"):
+        query_refund_req=PaymentQueryRefundReq()
+        query_refund_req.set_refund_request_id(refund_request_id)
+        res=self.init_gate_pay_client().query_web_refund(query_refund_req).__dict__
+        print("²éÑ¯ÍË¿î¶©µ¥£º",res)
+        return res
+
 
     def test_web_create_refund_v3(self):
         create_order_req = PaymentCreateRefundReqV3()
@@ -470,6 +634,257 @@ class GatePayClientTest(unittest.TestCase):
         create_order_resp = self.init_gate_pay_client().create_web_refund_v3(create_order_req)
         print(create_order_resp.get_data().__str__())
 
+    def test_channelmanage_save(self):
+        real_data={"merchantChannelList":[{"channelId":"test003","desc":"1","address":
+            "Noaddressavailable","chain":"SEPOLIA","customfiles_filed6":"3","email":"2",
+             "customFields":[{"code":"customfiles_filed6","name":"×Ô¶¨ÒåÊôĞÔ1","value":"3"}]}]}
+        real_min_data={"merchantChannelList":[{"channelId":"test004",
+                  "customFields":  [{"code":"customfiles_filed6","name":"×Ô¶¨ÒåÊôĞÔ1"}]}]}
+        custom_fields=CustomField()
+        custom_fields.set_code("customfiles_filed6")
+        custom_fields.set_name("×Ô¶¨ÒåÊôĞÔ1")
+        # custom_fields.set_value("3")
+
+        merchant_channel=MerchantChannel()
+        merchant_channel.set_channel_id(f"customer{RandomUtils.generate_nonce(7)}")#{RandomUtils.generate_nonce(7)}
+        merchant_channel.set_custom_fields([custom_fields])
+
+        channelmanage=SaveReq()
+        channelmanage.set_merchant_channel_list([merchant_channel])
+        print("ĞÂÔö¿Í»§ÇşµÀ-Ãû³Æ", merchant_channel.get_channel_id())
+        res = self.init_gate_pay_client().save_channel_manage(channelmanage).__dict__
+        print("ĞÂÔö¿Í»§ÇşµÀ-½á¹û·µ»Ø", res)
+        return merchant_channel.get_channel_id()
+
+    def test_create_batch_transfer_new(self,user_id:int=2124496616,amount:str="1",currency:str="USDT"):
+        """
+        ÅúÁ¿×ªÕË
+        :param user_id: ×ªÕËµ½ÄÄ¸öÓÃ»§id
+        :param amount: ×ªÕË½ğ¶î
+        :param currency: ±ÒÖÖ
+        :return:
+        """
+        batch_order = BatchOrder()
+        batch_order.set_user_id(user_id)  # ²âÊÔÕË»§´Ó6790011 ×ª¸ø2124496616
+        batch_order.set_amount(amount)
+
+        create_batch_transfer_req = CreateBatchTransferReq()
+        create_batch_transfer_req.set_batch_id(RandomUtils.generate_nonce(14))
+        create_batch_transfer_req.set_merchant_batch_no(RandomUtils.generate_nonce(24))
+        create_batch_transfer_req.set_biz_scene("DIRECT_TRANSFER")  # ³¡¾°
+        create_batch_transfer_req.set_merchant_id("10002")  # ÉÌ»§id Ô­Ê¼Êı¾İ 10002
+        create_batch_transfer_req.set_client_id("mZ96D37oKk-HrWJc")#Ô­Ê¼Êı¾İmZ96D37oKk-HrWJc  ÆäËûÊı¾İUsidqkQusxhpkrQV
+        create_batch_transfer_req.set_currency(currency)
+        create_batch_transfer_req.set_name("Larry")
+        create_batch_transfer_req.set_description("bonus")
+        create_batch_transfer_req.set_batch_order_list([batch_order])
+        print("#merchantBatchNo:" + create_batch_transfer_req.get_merchant_batch_no())
+        print("#batch_id:" + create_batch_transfer_req.get_batch_id())
+        res=self.init_gate_pay_client().create_batch_transfer(create_batch_transfer_req).__dict__
+        print("ÅúÁ¿×ªÕË·µ»ØÖµ£º",res)
+        return create_batch_transfer_req
+
+    def test_creat_batch_transfer_process(self):
+        """
+        Ö÷Òª²âÊÔ£º³É¹¦ÅúÁ¿×ªÕË
+        :return:
+        """
+        currency="USDT"
+        res=self.test_query_balance()
+        balance_data=jsonpath.jsonpath(res.get_data(),f"$.{currency}")
+        print("#Óà¶î·µ»Ø£º",balance_data)
+
+        print("#´´½¨ÅúÁ¿×ªÕË¶©µ¥")
+        create_batch_transfer_req=self.test_create_batch_transfer_new(2124496616,amount="0.001",currency=currency)
+        time.sleep(2)
+
+        print("#²éÑ¯ÅúÁ¿×ªÕË")
+        self.test_query_batch_transfer(create_batch_transfer_req.get_batch_id(),create_batch_transfer_req.get_merchant_batch_no())
+        print("²éÑ¯Óà¶î£¬¸öÈËÕË»§Óà¶î¡£ÌØ±ğËµÃ÷£¬ĞèÒªÔ¤·¢»·¾³²Å¿ÉÒÔ²éÑ¯")
+        res = self.test_query_balance()
+        balance_data = jsonpath.jsonpath(res.get_data(), f"$.{currency}")
+        print("#Óà¶îÔÙ´Î·µ»Ø£º", balance_data)
+
+        #self.assertEqual("1","2","×ªÕËÊ§°Ü£¬ÊÕÖ§²»Æ½ºâ")
+
+    def test_create_withdraw_order_proces(self):
+        """
+         ÌØ±ğ×¢Òâ ÊÇÉú²ú»·¾³£ºÖ÷Òª²âÊÔ ¸öÈËÕË»§-ÌáÏÖ³É¹¦
+        :return:
+        """
+        #²éÑ¯±ÒÖÖÖ§³ÖµÄÁ´£¨/v1/pay/wallet/currency_chains£©
+        res_=self.test_query_withdraw_chains()
+
+        currency="USDT"
+        print("#²éÑ¯¸öÈËÕË»§Óà¶î-ÊÇÉú²ú»·¾³")
+        res=self.test_query_withdraw_balance(currency)# ÓĞ·µ»ØÖµ£¬µ«ÊÇÄÃ²»µ½
+        print("#´´½¨ÌáÏÖ¶©µ¥-ÊÇÉú²ú»·¾³")
+        batchId=self.test_create_withdraw_order(currency)
+
+        print("#²éÑ¯ÌáÏÖ¶©µ¥-ÊÇÉú²ú»·¾³")
+        self.test_query_withdraw_order(batchId)#²éÑ¯ÌáÏÖ¶©µ¥
+
+        print("#ÌáÏÖ×´Ì¬²éÑ¯-ÊÇÉú²ú»·¾³")
+        self.test_query_withdraw_status(currency)
+
+        print("#ÔÙ´Î-ÌáÏÖ¸öÈËÕË»§²éÑ¯-ÊÇÉú²ú»·¾³")
+        res = self.test_query_withdraw_balance(currency)  # ÌáÏÖ¸öÈËÕË»§²éÑ¯
+        #¶ÏÑÔ
+        #ÕË»§²éÑ¯
+        # self.assertIs()
+    def test_create_gift_process(self):
+        """
+        Ö÷Òª²âÊÔ ÀñÆ·¿¨´´½¨
+        :return:
+        """
+        print("#ÁĞ³öÀñÆ·¿¨Ä£°å")
+        list_temp_req=self.test_list_gift_temp()
+        card_temp_id=jsonpath.jsonpath(list_temp_req.get_data(),"$.[0].card_temp_id")[0]
+        print("#´´½¨ÀñÆ·¿¨,ÀñÆ·¿¨card_temp_id£º",card_temp_id)
+        get_data=self.test_create_gift(card_temp_id)
+        batch_id=jsonpath.jsonpath(get_data,"$.batch_id")[0]
+        card_num=jsonpath.jsonpath(get_data,"$.card_num")[0]
+        print("ÀñÆ·¿¨Åú´ÎºÅ:",batch_id)
+        print("ÀñÆ·¿¨¿¨ºÅ	:", card_num)
+        print("#²é¿´ÀñÆ·¿¨ÁĞ±í")
+        query_gift=self.test_query_gift(card_num)
+        card_num_res=jsonpath.jsonpath(query_gift,"$.data.card_num")[0]
+        self.assertEqual(card_num,card_num_res,"´´½¨ºÍ²éÑ¯ÀñÆ·¿¨Ê§°Ü")
+
+    def test_create_convert_order_process(self):
+        """
+        Ö÷Òª²âÊÔ ¡£ÉÁ¶ÒÏÂµ¥
+        :return:
+        """
+        #²éÑ¯¿ÉÓÃÉÁ¶Ò±ÒÖÖ£¨/v1/pay/convert/currency£©
+        # res_convert_currency=self.test_query_convert_currency()
+        #²éÑ¯¿ÉÓÃÉÁ¶Ò±ÒÖÖ¶Ô£¨/v1/pay/convert/pair£©
+        # res_=self.test_query_convert_pair()
+
+        print("Ô¤ÀÀ±¨¼Û")
+        amount="1"
+        res=self.test_preview_convert(amount)
+        quote_id=jsonpath.jsonpath(res,"$.data.quote_id")[0]
+        print("ÉÁ¶ÒÏÂµ¥:")
+        res_order=self.test_create_convert_order_new(quote_id,amount)
+        order_id=jsonpath.jsonpath(res_order,"$.data.order_id")[0]
+        print("ÉÁ¶Ò¶©µ¥²éÑ¯:")
+        res_query=self.test_query_convert_order(order_id)
+        status=jsonpath.jsonpath(res_query,"$.code")[0]
+        self.assertEqual(status,"000000","ÉÁ¶ÒÏÂµ¥Ê§°Ü")
+
+    def test_channelmanage_save_process(self):
+        """
+        Ö÷Òª²âÊÔ£º´´½¨ÇşµÀ£¬ĞŞ¸ÄÇşµÀ£¬É¾³ıÇşµÀµÈ
+        :return:
+        """
+        channel_manage_fix=f"ĞŞ¸Ä¿Í»§ÇşµÀ{RandomUtils.generate_nonce(7)}"
+        print("´´½¨ÇşµÀ")
+        channel_id=self.test_channelmanage_save()
+        print("²éÑ¯¿Í»§ÇşµÀÁĞ±í")
+        res_list_channel=self.test_list_channel_manage(channel_id)
+        print("ĞŞ¸Ä¿Í»§ÇşµÀ")
+        res_update=self.test_update_channel_manage(channel_id)
+        print("É¾³ı¿Í»§ÇşµÀ")
+        res_delete=self.test_delete_channel_manage(channel_id)
+        print("²éÑ¯¿Í»§ÇşµÀÁĞ±í-²é¿´ÊÇ·ñÉ¾³ı")
+        res_list=self.test_list_channel_manage(channel_id)
+
+    def test_create_address_order_refund_convert_process(self):
+        """
+        Ö÷Òª²âÊÔ ÉÁ¶ÒÖ§¸¶µØÖ·Ö§¸¶ÍË¿î
+        :return:
+        """
+        currencies="USDT"
+        print("¸ù¾İ¶©µ¥±ÒÖÖ²éÑ¯Ö§³ÖÉÁ¶ÒµÄ±ÒÖÖ")
+        real_req={'code': '000000', 'data': {'currencies': ['USDT', 'USDC', 'DAI', 'POL']}, 'error_message': '', 'label': None, 'status': 'SUCCESS'}
+        convert_currencies_res=self.test_get_address_supported_convert_currencies(currencies)
+        chain=jsonpath.jsonpath(convert_currencies_res,"$.data.currencies[0]")[0]
+
+        print("´´½¨µØÖ·Ö§¸¶¶©µ¥/ÏÂµ¥-ÕâÊÇÖ±½ÓÖ§¸¶")
+        address_order_res,merchant_trade_no=self.test_create_address_order(currencies,"1",2124505156,"TRX",f"{currencies}_TRX")
+
+        print("²éÑ¯µØÖ·Ö§¸¶¶©µ¥ÏêÇé")
+        print("mock-ÕâÊÇÖ±½ÓÖ§¸¶")
+        prepay_id=jsonpath.jsonpath(address_order_res,"$.data.prepay_id")[0]
+        res=self.test_query_address_order(prepay_id,merchant_trade_no)
+        print("´´½¨µØÖ·Ö§¸¶ÉÁ¶ÒÖ§¸¶µ¥ÍË¿î£º")
+        res=self.test_create_address_refund_convert(prepay_id,"1")
+
+    def test_create_checkout_order_process(self):
+        """
+        Ö÷Òª²âÊÔ ÊÕÒøÌ¨Á÷³Ì£¬°üÀ¨ÍË¿î
+        :return:
+        """
+        print("´´½¨ÊÕÒøÌ¨¶©µ¥")
+        res=self.test_create_checkout_order(currency="USDT",amount="0.0001",user_id=2124505156
+                                   ,chain="BSC",full_curr_type="USDT_BSC")
+        prepay_id=jsonpath.jsonpath(res,"$.data.prepay_id")[0]
+        print("ÖĞĞÄ»¯Ö±¸¶£¨·Çsdk½Ó¿Ú£©-gateappÖ±½ÓÖ§¸¶")#Ê¹ÓÃ¶©µ¥·µ»ØµÄÁ¬½Ó-É¨ÂëÖ§¸¶
+        print("ÊÕ¿î¶©µ¥ÏêÇé£¨·Çsdk/")
+        print("´´½¨ÍË¿î")
+        # prepay_id="35425216694845512"
+        self.test_create_checkout_refund(prepay_id)
+
+    def test_create_address_order_process(self):
+        """
+        Ö÷Òª²âÊÔ µØÖ·Ö§¸¶ÍË¿î-»ñÈ¡×Ê½ğÁ÷Ë®ÕËµ¥
+        :return:
+        """
+        #²éÑ¯Ö§³ÖÁ´ÁĞ±í
+        # res_address_chains=self.test_get_address_chains()
+        #²éÑ¯Ö§³Ö±ÒÖÖÁĞ±í£¨/v1/pay/address/currencies£©
+        res=self.test_get_address_currencies()
+
+        res_c=CurrenciesReq()
+        print("´´½¨µØÖ·Ö§¸¶¶©µ¥/ÏÂµ¥-ÕâÊÇÖ±½ÓÖ§¸¶")
+        currencies = "USDT"
+        address_order_res = self.test_create_address_order(currencies, "0.0001", "2124505156", "TRX",
+
+                                                          f"USDT_TRX")
+        print("µØÖ·Ö§¸¶Á´ÉÏÈ·ÈÏ£¨/gfpay/v1/internal/pay/address/addresspayrecord£©")#mock½Ó¿Ú
+        print("²éÑ¯µØÖ·Ö§¸¶¶©µ¥ÏêÇé")
+
+        print("#´´½¨ÍË¿î-µØÖ·Ö§¸¶ÍË¿î")
+        prepay_id="35424585334653161"
+        self.test_create_address_refund(prepay_id)
+        print("»ñÈ¡×Ê½ğÁ÷Ë®ÕËµ¥")
+        self.test_query_bill_orders(prepay_id)
+    def test_create_web_order_process(self):
+        """
+        ´´½¨webÖ§¸¶¶©µ¥-²éÑ¯Á´ÉÏ½»Ò×ÏêÇé-²éÑ¯¶©µ¥-¹Ø±Õ¶©µ¥
+        :return:
+        """
+        print("´´½¨webÖ§¸¶¶©µ¥")
+        create_order_resp,merchantOrderNo=self.test_create_web_order()
+        prepay_id=jsonpath.jsonpath(create_order_resp,"$.data.prepay_id")[0]
+
+        time.sleep(5)
+        print("²éÑ¯Á´ÉÏ½»Ò×ÏêÇé")
+        self.test_address_transaction_detail(prepay_id)
+        print("²éÑ¯¶©µ¥")
+        self.test_query_web_order(prepay_id,merchantOrderNo)
+        print("¹Ø±Õ¶©µ¥")
+        self.test_close_web_order(prepay_id,merchantOrderNo)
+    def test_create_qr_code_order_pross(self):
+        """
+        ´´½¨É¨ÂëÖ§¸¶¶©µ¥£¨/v1/pay/transactions/native£©-´´½¨ÍË¿î¶©µ¥£¨/v1/pay/order/refund£©-
+        ²éÑ¯ÍË¿î¶©µ¥£¨/v1/pay/order/refund/query£©
+        :return:
+        """
+        print("´´½¨É¨ÂëÖ§¸¶¶©µ¥")
+        create_order_resp,merchantOrderNo=self.test_create_qr_code_order("USDT","1")#É¨Âë·µ»ØÊı¾İÊ§Ğ§
+        prepay_id=jsonpath.jsonpath(create_order_resp,"$.data.prepay_id")[0]
+        print("´´½¨ÍË¿î¶©µ¥")
+        self.test_create_web_refund(prepay_id,"1")
+        print("²éÑ¯ÍË¿î¶©µ¥")
+        self.test_query_web_refund(prepay_id)
+
+# if __name__ == "__main__":
+#     unittest.main()
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestLoader().loadTestsFromName(
+        "gatepay_client_test.GatePayClientTest.test_creat_batch_transfer_process"
+    )
+    unittest.TextTestRunner().run(suite)
