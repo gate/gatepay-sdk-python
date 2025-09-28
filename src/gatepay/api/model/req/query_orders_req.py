@@ -13,6 +13,7 @@ class QueryOrdersReq(BaseRequest):
     page: int = 0
     count: int = 0
     currency: Optional[str] = None
+    # 1-商户订单号 2-GatePay订单号 3-支付流水单号
     order_type: Optional[str] = None
     order_id_no: Optional[str] = None
     financial_type: Optional[str] = None
