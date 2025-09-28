@@ -148,7 +148,6 @@ class GatePayClientTest(unittest.TestCase):
         res=self.init_gate_pay_client().create_address_refund(address_create_refund_req).__dict__
         return res
 
-        # todo test 订单状态未终态
     def test_create_address_refund_convert(self,prepay_id:str="35425837317750961",amount:str="1"):
         address_create_refund_req=AddressCreateRefundConvertReq()
         address_create_refund_req.set_refund_request_id(RandomUtils.generate_nonce(9))#随机数 38242376781533689472
@@ -216,7 +215,6 @@ class GatePayClientTest(unittest.TestCase):
         print("客户渠道列表",res)
         return res
 
-    # todo fail
     def test_update_channel_manage(self,channel_id:str="44"):
         custom_field = CustomField()
         custom_field.set_code("87")
@@ -475,7 +473,6 @@ class GatePayClientTest(unittest.TestCase):
         return res
 
 
-    # todo 关闭订单失败
     def test_close_web_order(self,prepay_id:str="35297827964846503",merchant_trade_no:str="43wGhuujHKwAoLXRd7mMjihU"):
         close_order_req=CloseOrderReq()
         close_order_req.set_prepay_id(prepay_id)
@@ -494,7 +491,7 @@ class GatePayClientTest(unittest.TestCase):
         print("创建退款订单",res)
         return res,refund_request_id
 
-    def test_create_batch_transfer(self,user_id:str="6790011",amount:str="1"):
+    def test_create_batch_transfer(self,user_id:int=6790011 ,amount:str="1"):
         batch_order=BatchOrder()
         batch_order.set_user_id(user_id)
         batch_order.set_amount(amount)
@@ -590,50 +587,6 @@ class GatePayClientTest(unittest.TestCase):
         print("查询提现状态：",res)
         return None
 
-    def test_query_web_order_v3(self):
-        web_query_order_req=WebQueryOrderReqV3()
-        web_query_order_req.set_prepay_id("35297827964846503")
-        web_query_order_req.set_merchant_trade_no("43wGhuujHKwAoLXRd7mMjihU")
-        print(self.init_gate_pay_client().query_web_order_v3(web_query_order_req).get_data().__str__())
-
-    def test_query_web_refund_support_chains_v3(self):
-        query_refund_support_chains_req=QueryRefundSupportChainsReqV3()
-        query_refund_support_chains_req.set_currency("USDT")
-        print(self.init_gate_pay_client().query_web_refund_support_chains_v3(query_refund_support_chains_req).get_data().__str__())
-
-    def test_query_web_refund_v3(self):
-        query_refund_req=PaymentQueryRefundReqV3()
-        query_refund_req.set_refund_request_id("35297827964846503")
-        print(self.init_gate_pay_client().query_web_refund_v3(query_refund_req).get_data().__str__())
-
-    def test_query_web_refund(self,refund_request_id:str="GzpNbjuLnH4"):
-        query_refund_req=PaymentQueryRefundReq()
-        query_refund_req.set_refund_request_id(refund_request_id)
-        res=self.init_gate_pay_client().query_web_refund(query_refund_req).__dict__
-        print("查询退款订单：",res)
-        return res
-
-
-    def test_web_create_refund_v3(self):
-        create_order_req = PaymentCreateRefundReqV3()
-        create_order_req.set_merchant_id(RandomUtils.generate_nonce(14))
-        create_order_req.set_client_id("USDT")
-        create_order_req.set_refund_request_id("9.9")
-        create_order_req.set_prepay_id("123")
-        create_order_req.set_refund_amount("1_elbt01_16882172126048")
-        create_order_req.set_refund_reason("1_elbt01_16882172126048")
-        create_order_req.set_refund_gate_id("1_elbt01_16882172126048")
-        create_order_req.set_refund_to_gate_uid("1_elbt01_16882172126048")
-        create_order_req.set_refund_style("1_elbt01_16882172126048")
-        create_order_req.set_refund_pay_channel("1_elbt01_16882172126048")
-        create_order_req.set_refund_address("1_elbt01_16882172126048")
-        create_order_req.set_refund_chain("1_elbt01_16882172126048")
-        create_order_req.set_refund_amount_type_full("1_elbt01_16882172126048")
-
-        print("merchantOrderNo:" + create_order_req.get_merchant_trade_no())
-        create_order_resp = self.init_gate_pay_client().create_web_refund_v3(create_order_req)
-        print(create_order_resp.get_data().__str__())
-
     def test_channelmanage_save(self):
         real_data={"merchantChannelList":[{"channelId":"test003","desc":"1","address":
             "Noaddressavailable","chain":"SEPOLIA","customfiles_filed6":"3","email":"2",
@@ -673,7 +626,7 @@ class GatePayClientTest(unittest.TestCase):
         create_batch_transfer_req.set_merchant_batch_no(RandomUtils.generate_nonce(24))
         create_batch_transfer_req.set_biz_scene("DIRECT_TRANSFER")  # 场景
         create_batch_transfer_req.set_merchant_id("10002")  # 商户id 原始数据 10002
-        create_batch_transfer_req.set_client_id("mZ96D37oKk-HrWJc")#原始数据mZ96D37oKk-HrWJc  其他数据UsidqkQusxhpkrQV
+        create_batch_transfer_req.set_client_id("mZ96D37oKk-HrWJc")#
         create_batch_transfer_req.set_currency(currency)
         create_batch_transfer_req.set_name("Larry")
         create_batch_transfer_req.set_description("bonus")
