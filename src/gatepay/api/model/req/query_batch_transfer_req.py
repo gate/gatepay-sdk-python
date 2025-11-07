@@ -22,10 +22,10 @@ class QueryBatchTransferReqData(BaseModel):
     batch_id: Optional[str] = Field(None, alias='batch_id')
 
     # 订单币种
-    merchant_batch_no: Optional[str] = None
+    merchant_batch_no: Optional[str] = Field(None, alias='merchant_batch_no')
 
     # 订单金额
-    detail_status: Optional[str] = Field(None, alias='orderAmount')
+    detail_status: Optional[str] = Field(None, alias='detail_status')
 
     class Config:
         alias_generator = to_camel
