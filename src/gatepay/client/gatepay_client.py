@@ -458,7 +458,7 @@ class GatePayClient:
         """
         return GatePayResp(self.api_withdraw.query_balance(request))
 
-    def query_withdraw_status(self, request: QueryStatusReq) -> GatePayResp[QueryStatusResp]:
+    def query_withdraw_status(self, request: QueryStatusReq) -> GatePayResp[List[QueryStatusResp]]:
         """
         查询提现状态
 
