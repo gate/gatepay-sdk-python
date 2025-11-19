@@ -131,7 +131,6 @@ class BaseApi:
             self._pre_process(req)
             http_response = self._do_process(req)
             to_snake_str = CamelAndSnakeUtils.convert_camel_json_to_snake(http_response.text)
-            print("resp:"+to_snake_str)
             return self._post_process(to_snake_str, resp_class)
         except Exception as e:
             raise RuntimeError(str(e)) from e
