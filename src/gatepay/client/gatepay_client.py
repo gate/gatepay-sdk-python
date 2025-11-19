@@ -1,3 +1,5 @@
+from typing import List
+
 from src.gatepay.api.api_address import ApiAddress
 from src.gatepay.api.api_bill import ApiBill
 from src.gatepay.api.api_channel_manage import ApiChannelManage
@@ -438,7 +440,7 @@ class GatePayClient:
         """
         return GatePayResp(self.api_withdraw.query_order(request))
 
-    def query_withdraw_chains(self, request: QueryChainsReq) -> GatePayResp[QueryChainsResp]:
+    def query_withdraw_chains(self, request: QueryChainsReq) -> GatePayResp[List[QueryChainsResp]]:
         """
         查询币种支持的链
 
