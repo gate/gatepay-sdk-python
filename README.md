@@ -68,10 +68,10 @@ from src.gatepay.api.model.req.address.create_order_req import CreateOrderReq as
 from src.gatepay.common.utils.random_utils import RandomUtils
 
 # env_address 终端地址，不同环境请根据实际情况填写
-# client_id 客户端ID
+# client_id 商户api密钥
 # secret_key 密钥
 # api_key 商户api密钥
-gate_pay_config = GatePayConfig("env_address", 30, "client_id", Credential("secret_key", "api_key")
+gate_pay_config = GatePayConfig("env_address", 30, "api_key", Credential("secret_key", "api_key")
                                 )
 gatepay_client = GatePayClient(gate_pay_config)
 
