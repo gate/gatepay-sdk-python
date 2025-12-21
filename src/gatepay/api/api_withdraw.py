@@ -1,3 +1,5 @@
+from typing import List
+
 from src.gatepay.api.base_api import BaseApi
 from src.gatepay.api.model.req.withdraw.query_balance_req import QueryBalanceReq
 from src.gatepay.api.model.req.query_chains_req import QueryChainsReq
@@ -7,7 +9,7 @@ from src.gatepay.api.model.req.withdraw.query_order_req import QueryOrderReq
 from src.gatepay.api.model.resp.withdraw.query_balance_resp import QueryBalanceResp
 from src.gatepay.api.model.resp.query_chains_resp import QueryChainsResp
 from src.gatepay.api.model.resp.withdraw.query_order_resp import QueryOrderResp
-from src.gatepay.api.model.resp.query_status_resp import QueryStatusResp
+from src.gatepay.api.model.resp.withdraw.query_status_resp import QueryStatusResp
 from src.gatepay.api.model.resp.withdraw.create_order_resp import CreateOrderResp
 from src.gatepay.gatepay_config import GatePayConfig
 
@@ -36,7 +38,7 @@ class ApiWithdraw(BaseApi):
         Returns:
             CreateOrderResp: 创建订单响应对象
         """
-        return super().process(request, CreateOrderResp)
+        return super().process_non_base_response(request, CreateOrderResp)
 
     def query_order(self, request: QueryOrderReq) -> QueryOrderResp:
         """
@@ -56,9 +58,9 @@ class ApiWithdraw(BaseApi):
         Returns:
             QueryOrderResp: 查询订单响应对象
         """
-        return super().process(request, QueryOrderResp)
+        return super().process_non_base_response(request, QueryOrderResp)
 
-    def query_chains(self, request: QueryChainsReq) -> QueryChainsResp:
+    def query_chains(self, request: QueryChainsReq) -> List[QueryChainsResp]:
         """
         查询币种支持的链
 
@@ -68,7 +70,7 @@ class ApiWithdraw(BaseApi):
         Returns:
             QueryChainsResp: 查询链响应对象
         """
-        return super().process(request, QueryChainsResp)
+        return super().process_non_base_response(request, List[QueryChainsResp])
 
     def query_balance(self, request: QueryBalanceReq) -> QueryBalanceResp:
         """
@@ -80,9 +82,9 @@ class ApiWithdraw(BaseApi):
         Returns:
             QueryBalanceResp: 查询余额响应对象
         """
-        return super().process(request, QueryBalanceResp)
+        return super().process_non_base_response(request, QueryBalanceResp)
 
-    def query_status(self, request: QueryStatusReq) -> QueryStatusResp:
+    def query_status(self, request: QueryStatusReq) -> List[QueryStatusResp]:
         """
         查询提现状态
 
@@ -92,4 +94,4 @@ class ApiWithdraw(BaseApi):
         Returns:
             QueryStatusResp: 查询状态响应对象
         """
-        return super().process(request, QueryStatusResp)
+        return super().process_non_base_response(request, List[QueryStatusResp])

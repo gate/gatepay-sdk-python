@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 from dataclasses import dataclass
 
 
@@ -12,6 +12,7 @@ class TxItem:
     tx_id: Optional[str] = None
     utc_create_time: Optional[str] = None
     utc_update_time: Optional[str] = None
+    from_address: Optional[str] = None
 
     def get_chain(self) -> Optional[str]:
         """
@@ -124,3 +125,44 @@ class TxItem:
         :param utc_update_time: 更新时间
         """
         self.utc_update_time = utc_update_time
+
+    def get_from_address(self) -> Optional[str]:
+        """
+        获取来源地址
+
+        :return: 来源地址
+        """
+        return self.from_address
+
+    def set_from_address(self, from_address: str) -> None:
+        """
+        设置来源地址
+
+        :param from_address: 来源地址
+        """
+        self.from_address = from_address
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'TxItem':
+        """
+        从字典数据创建 TxItem 实例
+
+        Args:
+            data: 包含交易项数据的字典
+
+        Returns:
+            TxItem 实例
+        """
+        if not data:
+            return None
+
+        return cls(
+            chain=data.get('chain'),
+            address=data.get('address'),
+            full_curr_type=data.get('fullCurrType'),
+            amount=data.get('amount'),
+            tx_id=data.get('txId'),
+            utc_create_time=data.get('utcCreateTime'),
+            utc_update_time=data.get('utcUpdateTime'),
+            from_address=data.get('fromAddress')
+        )

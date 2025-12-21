@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 from dataclasses import dataclass
 
 
@@ -59,3 +59,14 @@ class CustomField:
         :param value: 字段值
         """
         self.value = value
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'CustomField':
+        if not data:
+            return None
+
+        return cls(
+            code=data.get('code'),
+            name=data.get('name'),
+            value=data.get('value')
+        )

@@ -29,13 +29,13 @@ from src.gatepay.api.model.req.manage.save_req import SaveReq
 from src.gatepay.api.model.req.manage.update_req import UpdateReq
 from src.gatepay.api.model.req.payment.create_order_req import CreateOrderReq as PaymentCreateOrderReq
 from src.gatepay.api.model.req.payment.create_refund_req import CreateRefundReq as PaymentCreateRefundReq
-from src.gatepay.api.model.req.payment.create_refund_req_v3 import CreateRefundReqV3 as PaymentCreateRefundReqV3
+from src.gatepay.api.model.req.payment.create_refund_req_v2 import CreateRefundReqV2 as PaymentCreateRefundReqV2
 from src.gatepay.api.model.req.payment.query_balance_req import QueryBalanceReq as PaymentQueryBalanceReq
 from src.gatepay.api.model.req.payment.query_order_req import QueryOrderReq as PaymentQueryOrderReq
-from src.gatepay.api.model.req.payment.query_order_req_v3 import QueryOrderReqV3 as PaymentQueryOrderReqV3
+from src.gatepay.api.model.req.payment.query_order_req_v2 import QueryOrderReqV2 as PaymentQueryOrderReqV2
 from src.gatepay.api.model.req.payment.query_refund_req import QueryRefundReq
-from src.gatepay.api.model.req.payment.query_refund_req_v3 import QueryRefundReqV3 as PaymentQueryRefundReqV3
-from src.gatepay.api.model.req.payment.query_refund_support_chains_req import QueryRefundSupportChainsReqV3
+from src.gatepay.api.model.req.payment.query_refund_req_v2 import QueryRefundReqV2 as PaymentQueryRefundReqV2
+from src.gatepay.api.model.req.payment.query_refund_support_chains_req import QueryRefundSupportChainsReqV2
 from src.gatepay.api.model.req.preview_req import PreviewReq
 from src.gatepay.api.model.req.qrcode.create_order_req import CreateOrderReq as QrCodeCreateOrderReq
 from src.gatepay.api.model.req.query_batch_transfer_req import QueryBatchTransferReq
@@ -69,13 +69,14 @@ from src.gatepay.api.model.resp.manage.list_resp import ListResp
 from src.gatepay.api.model.resp.manage.save_resp import SaveResp
 from src.gatepay.api.model.resp.manage.update_resp import UpdateResp
 from src.gatepay.api.model.resp.payment.create_order_resp import CreateOrderResp as PaymentCreateOrderResp
-from src.gatepay.api.model.resp.payment.create_refund_resp import CreateRefundResp as PaymentCreateRefundResp
-from src.gatepay.api.model.resp.payment.create_refund_resp_v3 import CreateRefundRespV3 as PaymentCreateRefundRespV3
+from src.gatepay.api.model.resp.create_refund_resp import CreateRefundResp as PaymentCreateRefundResp
+from src.gatepay.api.model.resp.payment.create_refund_resp_v2 import CreateRefundRespV2 as PaymentCreateRefundRespV2
 from src.gatepay.api.model.resp.payment.query_balance_resp import QueryBalanceResp as PaymentQueryBalanceResp
 from src.gatepay.api.model.resp.payment.query_order_resp import QueryOrderResp as PaymentQueryOrderResp
-from src.gatepay.api.model.resp.payment.query_order_resp_v3 import QueryOrderRespV3 as PaymentQueryOrderRespV3
+from src.gatepay.api.model.resp.payment.query_order_resp_v2 import QueryOrderRespV2 as PaymentQueryOrderRespV2
+from src.gatepay.api.model.resp.payment.query_order_resp_v2 import QueryOrderRespV2 as PaymentQueryOrderRespV2
 from src.gatepay.api.model.resp.payment.query_refund_resp import QueryRefundResp
-from src.gatepay.api.model.resp.payment.query_refund_resp_v3 import QueryRefundRespV3 as PaymentQueryRefundRespV3
+from src.gatepay.api.model.resp.payment.query_refund_resp_v2 import QueryRefundRespV2 as PaymentQueryRefundRespV2
 from src.gatepay.api.model.resp.preview_resp import PreviewResp
 from src.gatepay.api.model.resp.qrcode.create_order_resp import CreateOrderResp as QrCodeCreateOrderResp
 from src.gatepay.api.model.resp.query_batch_transfer_resp import QueryBatchTransferResp
@@ -84,6 +85,7 @@ from src.gatepay.api.model.resp.query_currency_resp import QueryCurrencyResp
 from src.gatepay.api.model.resp.query_orders_resp import QueryOrdersResp
 from src.gatepay.api.model.resp.query_pair_resp import QueryPairResp
 from src.gatepay.api.model.resp.query_status_resp import QueryStatusResp
+from src.gatepay.api.model.resp.withdraw.query_status_resp import QueryStatusResp as WithdrawQueryStatusResp
 from src.gatepay.api.model.resp.supported_convert_currencies_resp import SupportedConvertCurrenciesResp
 from src.gatepay.api.model.resp.transaction_detail_resp import TransactionDetailResp
 from src.gatepay.api.model.resp.withdraw.create_order_resp import CreateOrderResp as WithdrawCreateOrderResp
@@ -201,6 +203,7 @@ class GatePayClient:
         return GatePayResp(self.api_bill.query_orders(request))
 
     # 渠道管理相关方法
+    # there
     def save_channel_manage(self, request: SaveReq) -> GatePayResp[SaveResp]:
         """
         新增客户渠道
@@ -266,7 +269,7 @@ class GatePayClient:
         """
         return GatePayResp(self.api_convert.query_currency(request))
 
-    def query_convert_pair(self, request: QueryPairReq) -> GatePayResp[QueryPairResp]:
+    def query_convert_pair(self, request: QueryPairReq) -> GatePayResp[List[QueryPairResp]]:
         """
         查询可用币种对
 
@@ -308,11 +311,11 @@ class GatePayClient:
         创建礼品卡
 
         :param request: 请求参数
-        :return: GatePayResp<CreateResp>
+        :return: CreateResp
         """
         return GatePayResp(self.api_gift.create(request))
 
-    def list_gift_temp(self, request: ListTempReq) -> GatePayResp[ListTempResp]:
+    def list_gift_temp(self, request: ListTempReq) -> GatePayResp[List[ListTempResp]]:
         """
         列出礼品卡模板
 
@@ -458,7 +461,7 @@ class GatePayClient:
         """
         return GatePayResp(self.api_withdraw.query_balance(request))
 
-    def query_withdraw_status(self, request: QueryStatusReq) -> GatePayResp[List[QueryStatusResp]]:
+    def query_withdraw_status(self, request: QueryStatusReq) -> GatePayResp[List[WithdrawQueryStatusResp]]:
         """
         查询提现状态
 
@@ -467,16 +470,16 @@ class GatePayClient:
         """
         return GatePayResp(self.api_withdraw.query_status(request))
 
-    def query_web_order_v3(self, request: PaymentQueryOrderReqV3) -> GatePayResp[PaymentQueryOrderRespV3]:
+    def query_web_order_v2(self, request: PaymentQueryOrderReqV2) -> GatePayResp[PaymentQueryOrderRespV2]:
         """
         查询订单
 
         :param request: 请求参数
-        :return: GatePayResp<com.gatepay.core.api.payment.model.resp.QueryOrderRespV3>
+        :return: GatePayResp<com.gatepay.core.api.payment.model.resp.QueryOrderRespV2>
         """
-        return GatePayResp(self.api_payment.query_order_v3(request))
+        return GatePayResp(self.api_payment.query_order_v2(request))
 
-    def query_web_refund_support_chains_v3(self, request: QueryRefundSupportChainsReqV3) -> GatePayResp[ChainsResp]:
+    def query_web_refund_support_chains_v2(self, request) -> GatePayResp[ChainsResp]:
         """
         查询订单
 
@@ -485,20 +488,20 @@ class GatePayClient:
         """
         return GatePayResp(self.api_payment.query_refund_support_chain(request))
 
-    def create_web_refund_v3(self, request: PaymentCreateRefundReqV3) -> GatePayResp[PaymentCreateRefundRespV3]:
+    def create_web_refund_v2(self, request: PaymentCreateRefundReqV2) -> GatePayResp[PaymentCreateRefundRespV2]:
         """
         查询订单
 
         :param request: 请求参数
-        :return: GatePayResp<com.gatepay.core.api.model.resp.payment.PaymentCreateRefundRespV3>
+        :return: GatePayResp<com.gatepay.core.api.model.resp.payment.PaymentCreateRefundRespV2>
         """
-        return GatePayResp(self.api_payment.create_refund_v3(request))
+        return GatePayResp(self.api_payment.create_refund_v2(request))
 
-    def query_web_refund_v3(self, request: PaymentQueryRefundReqV3) -> GatePayResp[PaymentQueryRefundRespV3]:
+    def query_web_refund_v2(self, request: PaymentQueryRefundReqV2) -> GatePayResp[PaymentQueryRefundRespV2]:
         """
         查询订单
 
         :param request: 请求参数
-        :return: GatePayResp<com.gatepay.core.api.model.resp.payment.PaymentQueryRefundRespV3>
+        :return: GatePayResp<com.gatepay.core.api.model.resp.payment.PaymentQueryRefundRespV2>
         """
-        return GatePayResp(self.api_payment.query_refund_v3(request))
+        return GatePayResp(self.api_payment.query_refund_v2(request))

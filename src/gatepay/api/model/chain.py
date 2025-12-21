@@ -95,16 +95,11 @@ class Chain(BaseModel):
 
     @classmethod
     def from_dict(cls, data: dict):
-        """
-        从字典创建Chain对象
-
-        Args:
-            data (dict): 包含链信息的字典
-
-        Returns:
-            Chain: 创建的Chain对象
-        """
-        # Pydantic可以直接从字典创建对象
+        cls(
+            chain_type=data.get('chain_type'),
+            address=data.get('address'),
+            full_curr_type=data.get('fullCurrType')
+        )
         return cls(**data)
 
     def to_json(self) -> str:

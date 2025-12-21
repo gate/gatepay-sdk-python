@@ -6,7 +6,7 @@ from src.gatepay.common.enums.gatepay_api import GatePayApi
 
 
 @dataclass
-class QueryRefundReqV3(BaseRequest):
+class QueryRefundReqV2(BaseRequest):
 
     # 退款请求ID
     refund_request_id: Optional[str] = None
@@ -15,7 +15,7 @@ class QueryRefundReqV3(BaseRequest):
         """
         初始化后处理，设置API信息
         """
-        self.api = GatePayApi.PAYMENT_QUERY_REFUND_V3
+        self.api = GatePayApi.PAYMENT_QUERY_REFUND_V2
 
     def get_refund_request_id(self) -> Optional[str]:
         """

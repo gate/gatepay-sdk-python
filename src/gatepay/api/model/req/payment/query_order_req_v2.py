@@ -1,7 +1,7 @@
 from src.gatepay.base_request import BaseRequest
 from src.gatepay.common.enums.gatepay_api import GatePayApi
 
-class QueryOrderReqV3(BaseRequest):
+class QueryOrderReqV2(BaseRequest):
     """
     支付查询订单请求
     """
@@ -11,7 +11,7 @@ class QueryOrderReqV3(BaseRequest):
         初始化QueryOrderReq对象
         """
         super().__init__()
-        self.api = GatePayApi.PAYMENT_QUERY_ORDER_V3  # 需要根据实际GatePayApi定义调整
+        self.api = GatePayApi.PAYMENT_QUERY_ORDER_V2  # 需要根据实际GatePayApi定义调整
 
         self.prepay_id = None
         self.merchant_trade_no = None

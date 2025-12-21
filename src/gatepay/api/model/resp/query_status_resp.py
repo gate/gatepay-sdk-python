@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+
 from src.gatepay.base_response import BaseResponse
+
 
 @dataclass
 class QueryStatusResp(BaseResponse):

@@ -3,15 +3,24 @@
 import inspect
 import json
 from datetime import datetime
-from typing import TypeVar, Type
+from typing import TypeVar, Type, Optional
 
 import httpx
 
+from src.gatepay.api.model.req.query_chains_req import QueryChainsReq
+from src.gatepay.api.model.req.withdraw.query_balance_req import QueryBalanceReq
+from src.gatepay.api.model.req.query_status_req import QueryStatusReq
+from src.gatepay.api.model.resp.query_chains_resp import QueryChainsResp
+from src.gatepay.api.model.resp.withdraw.query_status_resp import QueryStatusResp
+from src.gatepay.api.model.resp.withdraw.query_balance_resp import QueryBalanceResp
+from src.gatepay.api.processor import Processor
 from src.gatepay.base_request import BaseRequest
-from src.gatepay.base_response import BaseResponse
+from src.gatepay.base_response import BaseResponse, T
+from src.gatepay.common.enums.code import Code
+from src.gatepay.common.enums.status import Status
 from src.gatepay.common.utils.random_utils import RandomUtils
-from src.gatepay.common.utils.string_utils import StringUtils
 from src.gatepay.common.utils.snake_camel_utils import CamelAndSnakeUtils
+from src.gatepay.common.utils.string_utils import StringUtils
 from src.gatepay.gatepay_config import GatePayConfig
 from src.gatepay.gatepay_http_client import GatePayHttpClient
 
@@ -28,6 +37,7 @@ class BaseApi:
         :param gate_pay_config: GatePay配置
         """
         self.gate_pay_http_client = GatePayHttpClient(gate_pay_config)
+        self.processor = Processor()
 
     def _pre_process(self, req: Req) -> bool:
         """
@@ -62,78 +72,6 @@ class BaseApi:
         response = self.gate_pay_http_client.get_http_client().send(http_request)
         return response
 
-    def _post_process(self, to_snake_json_str: str, resp_class: Type[Resp]) -> Resp:
-        """
-        后置处理
-
-        :param to_snake_json_str: JSON字符串
-        :param resp_class: 响应类
-        :return: 响应对象
-        :raises JsonProcessingException, Exception
-        """
-        if StringUtils.is_empty(to_snake_json_str):
-            return resp_class()
-
-        # 检查响应类是否有GatePayRespData注解
-        exist_gatepay_resp_data = False
-        for name in dir(resp_class):
-            if not name.startswith('_') and self._has_gatepay_resp_data_annotation(resp_class, name):
-                exist_gatepay_resp_data = True
-                break
-
-        if exist_gatepay_resp_data:
-            # 处理带注解的响应
-            spec_resp = BaseResponse()
-            spec_resp.data = resp_class()
-
-            # 解析JSON
-            json_data = json.loads(to_snake_json_str)
-            return_spec_resp = BaseResponse()
-            return_spec_resp.code = json_data.get('code')
-            return_spec_resp.status = json_data.get('status')
-            return_spec_resp.label = json_data.get('label')
-            return_spec_resp.error_message = json_data.get('error_message')
-            return_spec_resp.data = json_data.get('data')
-
-            resp = resp_class()
-            resp.code = return_spec_resp.code
-            resp.status = return_spec_resp.status
-            resp.label = return_spec_resp.label
-            resp.error_message = return_spec_resp.error_message
-            resp.data = return_spec_resp.data
-            return resp
-
-        # 直接解析JSON到响应类
-        json_data = json.loads(to_snake_json_str)
-        if isinstance(json_data, list):
-            # 处理列表数据 - 可能需要根据实际需求调整
-            resp = resp_class()
-            # 如果响应类有 data 字段，将列表赋值给它
-            if hasattr(resp, 'data'):
-                setattr(resp, 'data', json_data)
-        else :
-            resp = resp_class()
-            for key, value in json_data.items():
-                if hasattr(resp, key):
-                    setattr(resp, key, value)
-
-        return resp
-
-    def process(self, req: Req, resp_class: Type[Resp]) -> Resp:
-        """
-        处理请求
-
-        :param req: 请求对象
-        :param resp_class: 响应类
-        :return: 响应对象
-        """
-        try:
-            self._pre_process(req)
-            http_response = self._do_process(req)
-            to_snake_str = CamelAndSnakeUtils.convert_camel_json_to_snake(http_response.text)
-            return self._post_process(to_snake_str, resp_class)
-        except Exception as e:
-            raise RuntimeError(str(e)) from e
 
     def _has_gatepay_param_annotation(self, obj, field_name: str) -> bool:
         """
@@ -159,14 +97,29 @@ class BaseApi:
         # 可以使用装饰器或其他方式标记必填字段
         return hasattr(obj, f"_{field_name}_required")
 
-    def _has_gatepay_resp_data_annotation(self, obj, field_name: str) -> bool:
+    def process_non_base_response(self, req: Req, resp_class: Type[T]) -> 'BaseResponse[T]':
         """
-        检查字段是否有GatePayRespData注解（辅助方法）
+        处理非基础响应的请求
 
-        :param obj: 对象实例
-        :param field_name: 字段名
-        :return: 是否有注解
+        Args:
+            req: 请求对象
+            resp_class: 响应数据类
+
+        Returns:
+            BaseResponse: 处理后的基础响应对象
+
+        Raises:
+            RuntimeException: 当处理过程中出现异常时抛出
         """
-        # 这里需要根据实际Python实现调整
-        # 可以使用装饰器或其他方式标记字段
-        return hasattr(obj, f"_{field_name}_gatepay_resp_data")
+        try:
+            # 前置处理
+            self._pre_process(req)
+
+            # 执行请求处理
+            http_response = self._do_process(req)
+
+            # 使用PROCESSOR处理响应
+            return self.processor.post_process_response(http_response.text, resp_class)
+
+        except Exception as e:
+            raise RuntimeError(str(e))

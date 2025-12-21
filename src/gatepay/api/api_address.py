@@ -19,6 +19,7 @@ from src.gatepay.api.model.resp.currencies_resp import CurrenciesResp
 from src.gatepay.api.model.resp.address.query_order_resp import QueryOrderResp
 from src.gatepay.api.model.resp.supported_convert_currencies_resp import SupportedConvertCurrenciesResp
 from src.gatepay.api.model.resp.transaction_detail_resp import TransactionDetailResp
+from src.gatepay.base_response import BaseResponse
 from src.gatepay.gatepay_config import GatePayConfig
 
 T = TypeVar('T')
@@ -35,25 +36,25 @@ class ApiAddress(BaseApi):
         """
         super().__init__(gate_pay_config)
 
-    def get_address_chains(self, request: ChainsReq) -> ChainsResp:
+    def get_address_chains(self, request: ChainsReq) -> 'BaseResponse[ChainsResp]':
         """
         查询支持链列表
 
         :param request: 请求参数
         :return: ChainsResp
         """
-        return super().process(request, ChainsResp)
+        return super().process_non_base_response(request, ChainsResp)
 
-    def get_address_currencies(self) -> CurrenciesResp:
+    def get_address_currencies(self) -> 'BaseResponse[CurrenciesResp]':
         """
         查询支持币种列表
 
         :return: CurrenciesResp
         """
-        return super().process(CurrenciesReq(), CurrenciesResp)
+        return super().process_non_base_response(CurrenciesReq(), CurrenciesResp)
 
     def get_supported_convert_currencies(self,
-                                         request: SupportedConvertCurrenciesReq) -> SupportedConvertCurrenciesResp:
+                                         request: SupportedConvertCurrenciesReq) -> 'BaseResponse[SupportedConvertCurrenciesResp]':
         """
         创建闪兑地址支付单之前，根据订单币种查询支持闪兑的币种，
         用户从支持闪兑的币种列表中选择实际支付币种创建闪兑支付订单
@@ -61,49 +62,49 @@ class ApiAddress(BaseApi):
         :param request: 请求参数, currency 订单币种
         :return: SupportedConvertCurrenciesResp, currencies 支持闪兑到订单币种的币种列表
         """
-        return super().process(request, SupportedConvertCurrenciesResp)
+        return super().process_non_base_response(request, SupportedConvertCurrenciesResp)
 
-    def create_order(self, request: CreateOrderReq) -> CreateOrderResp:
+    def create_order(self, request: CreateOrderReq) -> 'BaseResponse[CreateOrderResp]':
         """
         创建地址支付订单/下单
 
         :param request: 请求参数
         :return: CreateOrderResp
         """
-        return super().process(request, CreateOrderResp)
+        return super().process_non_base_response(request, CreateOrderResp)
 
-    def query_order(self, request: QueryOrderReq) -> QueryOrderResp:
+    def query_order(self, request: QueryOrderReq) -> 'BaseResponse[QueryOrderResp]':
         """
         查询地址支付订单详情
 
         :param request: 请求参数
         :return: QueryOrderResp
         """
-        return super().process(request, QueryOrderResp)
+        return super().process_non_base_response(request, QueryOrderResp)
 
-    def create_refund(self, request: CreateRefundReq) -> CreateRefundResp:
+    def create_refund(self, request: CreateRefundReq) -> 'BaseResponse[CreateRefundResp]':
         """
         创建非闪兑支付单退款
 
         :param request: 请求参数
         :return: CreateRefundResp
         """
-        return super().process(request, CreateRefundResp)
+        return super().process_non_base_response(request, CreateRefundResp)
 
-    def create_refund_convert(self, request: CreateRefundConvertReq) -> CreateRefundConvertResp:
+    def create_refund_convert(self, request: CreateRefundConvertReq) -> 'BaseResponse[CreateRefundConvertResp]':
         """
         创建闪兑支付单退款
 
         :param request: 请求参数
         :return: CreateRefundConvertResp
         """
-        return super().process(request, CreateRefundConvertResp)
+        return super().process_non_base_response(request, CreateRefundConvertResp)
 
-    def transaction_detail(self, request: TransactionDetailReq) -> TransactionDetailResp:
+    def transaction_detail(self, request: TransactionDetailReq) -> 'BaseResponse[TransactionDetailResp]':
         """
         查询链上交易详情
 
         :param request: 请求参数
         :return: TransactionDetailResp
         """
-        return super().process(request, TransactionDetailResp)
+        return super().process_non_base_response(request, TransactionDetailResp)

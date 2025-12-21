@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -43,3 +43,27 @@ class ConfirmItem:
         :param confirm: 确认数
         """
         self.confirm = confirm
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ConfirmItem':
+        """
+        从字典数据创建 ConfirmItem 实例
+
+        Args:
+            data: 包含确认项数据的字典
+
+        Returns:
+            ConfirmItem 实例
+        """
+        if not data:
+            return None
+
+        # 处理 amount 字段，确保转换为 Decimal 类型
+        amount = data.get('amount')
+        if amount is not None:
+            amount = Decimal(str(amount))
+
+        return cls(
+            amount=amount,
+            confirm=data.get('confirm', 0)
+        )

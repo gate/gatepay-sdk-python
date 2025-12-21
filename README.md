@@ -127,14 +127,17 @@ SDK会抛出异常来处理错误情况：
 
 ```python
         try:
+            # 前置处理
             self._pre_process(req)
+
+            # 执行请求处理
             http_response = self._do_process(req)
-            # 这里将用后置处理器转为snake
-            to_snake_str = CamelAndSnakeUtils.convert_camel_json_to_snake(http_response.text)
-            print(to_snake_str)
-            return self._post_process(to_snake_str, resp_class)
+
+            # 使用PROCESSOR处理响应
+            return self.processor.post_process_response(http_response.text, resp_class)
+
         except Exception as e:
-            raise RuntimeError(str(e)) from e
+            raise RuntimeError(str(e))
 ```
 
 

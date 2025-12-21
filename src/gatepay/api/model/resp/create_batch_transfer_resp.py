@@ -1,10 +1,8 @@
 from dataclasses import dataclass
-from src.gatepay.base_response import BaseResponse
+from typing import Optional
+
 
 @dataclass
-class CreateBatchTransferResp(BaseResponse):
-    def __init__(self):
-        super().__init__()
-        # 确保所有属性都被初始化
-
-    pass
+class CreateBatchTransferResp:
+    batch_id: Optional[str] = None
+    merchant_batch_no: Optional[str] = None

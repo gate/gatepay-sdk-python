@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 
 from src.gatepay.api.model.custom_field import CustomField
@@ -8,15 +8,16 @@ from src.gatepay.api.model.custom_field import CustomField
 class MerchantChannel:
 
     channel_id: Optional[str] = None
-    desc: Optional[str] = None
+    custom_fields: Optional[List[CustomField]] = None
 
+    desc: Optional[str] = None
+    email: Optional[str] = None
     # 0: 个人，1：企业
     channel_type: Optional[str] = None
 
     chain: Optional[str] = None
     currency: Optional[str] = None
     address: Optional[str] = None
-    custom_fields: Optional[List[CustomField]] = None
     result: Optional[str] = None
 
     def get_channel_id(self) -> Optional[str]:
@@ -148,3 +149,26 @@ class MerchantChannel:
         :param result: 结果
         """
         self.result = result
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'MerchantChannel':
+        if not data:
+            return None
+
+        # 处理 custom_fields 列表
+        custom_fields_data = data.get('customFields')
+        custom_fields = None
+        if custom_fields_data and isinstance(custom_fields_data, list):
+            custom_fields = [CustomField.from_dict(item) for item in custom_fields_data if item]
+
+        return cls(
+            channel_id=data.get('channelId'),
+            custom_fields=custom_fields,
+            desc=data.get('desc'),
+            email=data.get('email'),
+            channel_type=data.get('channelType'),
+            chain=data.get('chain'),
+            currency=data.get('currency'),
+            address=data.get('address'),
+            result=data.get('result')
+        )

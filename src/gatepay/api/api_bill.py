@@ -1,6 +1,7 @@
 from src.gatepay.api.base_api import BaseApi
 from src.gatepay.api.model.req.query_orders_req import QueryOrdersReq
 from src.gatepay.api.model.resp.query_orders_resp import QueryOrdersResp
+from src.gatepay.base_response import BaseResponse
 from src.gatepay.gatepay_config import GatePayConfig
 
 
@@ -14,11 +15,11 @@ class ApiBill(BaseApi):
         """
         super().__init__(gate_pay_config)
 
-    def query_orders(self, request: QueryOrdersReq) -> QueryOrdersResp:
+    def query_orders(self, request: QueryOrdersReq) -> 'BaseResponse[QueryOrdersResp]':
         """
         查询账单
 
         :param request: 查询请求参数
         :return: 查询响应结果
         """
-        return super().process(request, QueryOrdersResp)
+        return super().process_non_base_response(request, QueryOrdersResp)

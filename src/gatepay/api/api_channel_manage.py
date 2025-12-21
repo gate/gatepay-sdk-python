@@ -7,6 +7,7 @@ from src.gatepay.api.model.resp.manage.delete_resp import DeleteResp
 from src.gatepay.api.model.resp.manage.list_resp import ListResp
 from src.gatepay.api.model.resp.manage.save_resp import SaveResp
 from src.gatepay.api.model.resp.manage.update_resp import UpdateResp
+from src.gatepay.base_response import BaseResponse
 from src.gatepay.gatepay_config import GatePayConfig
 
 
@@ -21,38 +22,38 @@ class ApiChannelManage(BaseApi):
         """
         super().__init__(gate_pay_config)
 
-    def save(self, request: SaveReq) -> SaveResp:
+    def save(self, request: SaveReq) -> 'BaseResponse[SaveResp]':
         """
         新增客户渠道
 
         :param request: 保存请求参数
         :return: 保存响应结果
         """
-        return super().process(request, SaveResp)
+        return super().process_non_base_response(request, SaveResp)
 
-    def list(self, request: ListReq) -> ListResp:
+    def list(self, request: ListReq) ->'BaseResponse[ListResp]':
         """
         查询客户渠道列表
 
         :param request: 列表请求参数
         :return: 列表响应结果
         """
-        return super().process(request, ListResp)
+        return super().process_non_base_response(request, ListResp)
 
-    def update(self, request: UpdateReq) -> UpdateResp:
+    def update(self, request: UpdateReq) -> 'BaseResponse[UpdateResp]':
         """
         修改客户渠道
 
         :param request: 更新请求参数
         :return: 更新响应结果
         """
-        return super().process(request, UpdateResp)
+        return super().process_non_base_response(request, UpdateResp)
 
-    def delete(self, request: DeleteReq) -> DeleteResp:
+    def delete(self, request: DeleteReq) -> 'BaseResponse[DeleteResp]':
         """
         删除客户渠道
 
         :param request: 删除请求参数
         :return: 删除响应结果
         """
-        return super().process(request, DeleteResp)
+        return super().process_non_base_response(request, DeleteResp)

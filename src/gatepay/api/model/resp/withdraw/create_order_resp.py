@@ -1,20 +1,14 @@
-from typing import Optional
-from src.gatepay.base_response import BaseResponse
+from dataclasses import dataclass
+from typing import Optional, Dict, Any
 
 
-class CreateOrderResp(BaseResponse):
+@dataclass
+class CreateOrderResp:
     """
     创建订单响应
     """
+    batch_id: Optional[str] = None
 
-    def __init__(self):
-        super().__init__()
-        self.batch_id: Optional[str] = None
-
-    @property
-    def batch_id(self) -> Optional[str]:
-        return self._batch_id
-
-    @batch_id.setter
-    def batch_id(self, value: Optional[str]):
-        self._batch_id = value
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'CreateOrderResp':
+        return cls(**data)

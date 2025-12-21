@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -13,7 +15,7 @@ class Withdraw(BaseModel):
     # 商户提现ID
     merchant_withdraw_id: Optional[str] = Field(None, alias='merchant_withdraw_id')
     currency: Optional[str] = None
-    amount: Optional[str] = None
+    amount: Optional[Decimal] = None
     chain: Optional[str] = None
     address: Optional[str] = None
     memo: Optional[str] = None
@@ -63,7 +65,7 @@ class Withdraw(BaseModel):
         """
         self.currency = currency
 
-    def get_amount(self) -> Optional[str]:
+    def get_amount(self) -> Optional[Decimal]:
         """
         获取金额
 
@@ -71,7 +73,7 @@ class Withdraw(BaseModel):
         """
         return self.amount
 
-    def set_amount(self, amount: str) -> None:
+    def set_amount(self, amount: Decimal) -> None:
         """
         设置金额
 

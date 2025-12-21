@@ -1,15 +1,9 @@
-from typing import List, Optional
 from dataclasses import dataclass
-
-from src.gatepay.base_response import BaseResponse
+from typing import Optional, List, Any, Dict
 
 
 @dataclass
 class Order:
-    """
-    订单信息
-    """
-
     receiver_id: int = 0
     amount: Optional[str] = None
     currency: Optional[str] = None
@@ -19,257 +13,66 @@ class Order:
     create_time: int = 0
     channel_id: Optional[str] = None
 
-    def get_receiver_id(self) -> int:
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Order':
         """
-        获取接收者ID
+        从字典创建Order实例
 
-        :return: 接收者ID
-        """
-        return self.receiver_id
+        Args:
+            data: 包含订单信息的字典
 
-    def set_receiver_id(self, receiver_id: int) -> None:
+        Returns:
+            Order实例
         """
-        设置接收者ID
-
-        :param receiver_id: 接收者ID
-        """
-        self.receiver_id = receiver_id
-
-    def get_amount(self) -> Optional[str]:
-        """
-        获取金额
-
-        :return: 金额
-        """
-        return self.amount
-
-    def set_amount(self, amount: str) -> None:
-        """
-        设置金额
-
-        :param amount: 金额
-        """
-        self.amount = amount
-
-    def get_currency(self) -> Optional[str]:
-        """
-        获取币种
-
-        :return: 币种
-        """
-        return self.currency
-
-    def set_currency(self, currency: str) -> None:
-        """
-        设置币种
-
-        :param currency: 币种
-        """
-        self.currency = currency
-
-    def get_status(self) -> Optional[str]:
-        """
-        获取状态
-
-        :return: 状态
-        """
-        return self.status
-
-    def set_status(self, status: str) -> None:
-        """
-        设置状态
-
-        :param status: 状态
-        """
-        self.status = status
-
-    def get_reward_id(self) -> Optional[str]:
-        """
-        获取奖励ID
-
-        :return: 奖励ID
-        """
-        return self.reward_id
-
-    def set_reward_id(self, reward_id: str) -> None:
-        """
-        设置奖励ID
-
-        :param reward_id: 奖励ID
-        """
-        self.reward_id = reward_id
-
-    def get_transaction_id(self) -> Optional[str]:
-        """
-        获取交易ID
-
-        :return: 交易ID
-        """
-        return self.transaction_id
-
-    def set_transaction_id(self, transaction_id: str) -> None:
-        """
-        设置交易ID
-
-        :param transaction_id: 交易ID
-        """
-        self.transaction_id = transaction_id
-
-    def get_create_time(self) -> int:
-        """
-        获取创建时间
-
-        :return: 创建时间戳
-        """
-        return self.create_time
-
-    def set_create_time(self, create_time: int) -> None:
-        """
-        设置创建时间
-
-        :param create_time: 创建时间戳
-        """
-        self.create_time = create_time
-
-    def get_channel_id(self) -> Optional[str]:
-        """
-        获取渠道ID
-
-        :return: 渠道ID
-        """
-        return self.channel_id
-
-    def set_channel_id(self, channel_id: str) -> None:
-        """
-        设置渠道ID
-
-        :param channel_id: 渠道ID
-        """
-        self.channel_id = channel_id
+        return cls(
+            receiver_id=data.get('receiver_id', 0),
+            amount=data.get('amount'),
+            currency=data.get('currency'),
+            status=data.get('status'),
+            reward_id=data.get('reward_id'),
+            transaction_id=data.get('transaction_id'),
+            create_time=data.get('create_time', 0),
+            channel_id=data.get('channel_id')
+        )
 
 
 @dataclass
-class QueryBatchTransferResp(BaseResponse['QueryBatchTransferResp']):
-    def __init__(self):
-        super().__init__()
-        # 确保所有属性都被初始化
-
+class QueryBatchTransferResp:
+    bizCode: Optional[str] = None
+    bizMessage: Optional[str] = None
+    bizData: Optional[Any] = None
     batch_id: Optional[str] = None
     merchant_id: int = 0
     merchant_batch_no: Optional[str] = None
     status: Optional[str] = None
     currency: Optional[str] = None
     channel_id: Optional[str] = None
-    orders: Optional[List[Order]] = None
+    orders_list: Optional[List[Order]] = None
 
-    def get_status(self) -> Optional[str]:
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'QueryBatchTransferResp':
         """
-        获取状态
+        从字典创建QueryBatchTransferResp实例
 
-        :return: 状态
-        """
-        return self.status
+        Args:
+            data: 包含批量转账响应信息的字典
 
-    def set_status(self, status: str) -> None:
+        Returns:
+            QueryBatchTransferResp实例
         """
-        设置状态
+        orders = None
+        if 'orders_list' in data and data['orders_list']:
+            orders = [Order.from_dict(order_data) for order_data in data['orders_list']]
 
-        :param status: 状态
-        """
-        self.status = status
-
-    def get_currency(self) -> Optional[str]:
-        """
-        获取币种
-
-        :return: 币种
-        """
-        return self.currency
-
-    def set_currency(self, currency: str) -> None:
-        """
-        设置币种
-
-        :param currency: 币种
-        """
-        self.currency = currency
-
-    def get_batch_id(self) -> Optional[str]:
-        """
-        获取批次ID
-
-        :return: 批次ID
-        """
-        return self.batch_id
-
-    def set_batch_id(self, batch_id: str) -> None:
-        """
-        设置批次ID
-
-        :param batch_id: 批次ID
-        """
-        self.batch_id = batch_id
-
-    def get_merchant_id(self) -> int:
-        """
-        获取商户ID
-
-        :return: 商户ID
-        """
-        return self.merchant_id
-
-    def set_merchant_id(self, merchant_id: int) -> None:
-        """
-        设置商户ID
-
-        :param merchant_id: 商户ID
-        """
-        self.merchant_id = merchant_id
-
-    def get_merchant_batch_no(self) -> Optional[str]:
-        """
-        获取商户批次号
-
-        :return: 商户批次号
-        """
-        return self.merchant_batch_no
-
-    def set_merchant_batch_no(self, merchant_batch_no: str) -> None:
-        """
-        设置商户批次号
-
-        :param merchant_batch_no: 商户批次号
-        """
-        self.merchant_batch_no = merchant_batch_no
-
-    def get_channel_id(self) -> Optional[str]:
-        """
-        获取渠道ID
-
-        :return: 渠道ID
-        """
-        return self.channel_id
-
-    def set_channel_id(self, channel_id: str) -> None:
-        """
-        设置渠道ID
-
-        :param channel_id: 渠道ID
-        """
-        self.channel_id = channel_id
-
-    def get_orders(self) -> Optional[List[Order]]:
-        """
-        获取订单列表
-
-        :return: 订单列表
-        """
-        return self.orders
-
-    def set_orders(self, orders: List[Order]) -> None:
-        """
-        设置订单列表
-
-        :param orders: 订单列表
-        """
-        self.orders = orders
+        return cls(
+            bizCode=data.get('bizCode'),
+            bizMessage=data.get('bizMessage'),
+            bizData=data.get('bizData'),
+            batch_id=data.get('batch_id'),
+            merchant_id=data.get('merchant_id', 0),
+            merchant_batch_no=data.get('merchant_batch_no'),
+            status=data.get('status'),
+            currency=data.get('currency'),
+            channel_id=data.get('channel_id'),
+            orders_list=orders
+        )
