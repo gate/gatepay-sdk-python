@@ -10,6 +10,8 @@ class CreateOrderResp:
     创建订单响应
     """
     prepayId: Optional[str] = None
+    orderAmount: Optional[str] = None
+    surchargeAmount: Optional[str] = None
     terminalType: Optional[str] = None
     expireTime: int = 0
     qrContent: Optional[str] = None

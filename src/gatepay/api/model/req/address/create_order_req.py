@@ -28,6 +28,9 @@ class CreateOrderReqData(BaseModel):
     # 订单金额
     order_amount: Optional[str] = Field(None, alias='orderAmount')
 
+    # 用户承担手续费 非必传
+    surcharge_amount: Optional[str] = Field(None, alias='surchargeAmount')
+
     # 非地址支付的payCurrency在实际付款时确定，地址支付的payCurrency在下单时候确定
     pay_currency: Optional[str] = Field(None, alias='payCurrency')
 
@@ -89,6 +92,9 @@ class CreateOrderReq(BaseRequest):
 
         # 订单金额
         self.order_amount = None
+
+        # 用户承担手续费 非必传
+        self.surcharge_amount = None
 
         # 非地址支付的payCurrency在实际付款时确定，地址支付的payCurrency在下单时候确定
         self.pay_currency = None
@@ -179,6 +185,25 @@ class CreateOrderReq(BaseRequest):
         """
         self.order_amount = order_amount
         self._data.order_amount = order_amount
+
+    def get_surcharge_amount(self) -> str:
+        """
+        获取用户承担手续费
+
+        Returns:
+            str: 用户承担手续费
+        """
+        return self.surcharge_amount
+
+    def set_surcharge_amount(self, surcharge_amount: str):
+        """
+        用户承担手续费
+
+        Args:
+            surcharge_amount (str): 用户承担手续费
+        """
+        self.surcharge_amount = surcharge_amount
+        self._data.surcharge_amount = surcharge_amount
 
     def get_pay_currency(self) -> str:
         """
@@ -414,6 +439,7 @@ class CreateOrderReq(BaseRequest):
         """
         return (f"CreateOrderReq(merchant_trade_no={self.merchant_trade_no}, "
                 f"currency={self.currency}, order_amount={self.order_amount}, "
+                f"surcharge_amount={self.surcharge_amount}, "
                 f"pay_currency={self.pay_currency}, actual_currency={self.actual_currency}, "
                 f"env={self.env}, goods={self.goods}, order_expire_time={self.order_expire_time}, "
                 f"return_url={self.return_url}, cancel_url={self.cancel_url}, "

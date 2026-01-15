@@ -19,6 +19,7 @@ class CreateOrderReq(BaseRequest):
         self.env = None
         self.currency = None
         self.order_amount = None
+        self.surcharge_amount = None
         self.pay_currency = None
         self.merchant_user_id = 0
         self.goods = None
@@ -99,6 +100,24 @@ class CreateOrderReq(BaseRequest):
             order_amount (str): 订单金额
         """
         self.order_amount = order_amount
+
+    def get_surcharge_amount(self) -> str:
+        """
+        获取用户承担手续费
+
+        Returns:
+            str: 用户承担手续费
+        """
+        return self.surcharge_amount
+
+    def set_surcharge_amount(self, surcharge_amount: str):
+        """
+        用户承担手续费
+
+        Args:
+            surcharge_amount (str): 用户承担手续费
+        """
+        self.surcharge_amount = surcharge_amount
 
     def get_pay_currency(self) -> str:
         """

@@ -27,6 +27,7 @@ class QueryOrderRespV2:
     goodsName: Optional[str] = None
     currency: Optional[str] = None
     orderAmount: Optional[str] = None
+    surchargeAmount: Optional[str] = None
     status: Optional[str] = None
     createTime: int = 0
     expireTime: int = 0

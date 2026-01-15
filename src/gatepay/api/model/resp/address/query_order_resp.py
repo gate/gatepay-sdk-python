@@ -16,6 +16,7 @@ class QueryOrderResp:
     goodsName: Optional[str] = None  # 商品名，商户创建订单时提供
     currency: Optional[str] = None  # 订单币种
     orderAmount: Optional[str] = None  # 订单金额
+    surchargeAmount: Optional[str] = None
     payCurrency: Optional[str] = None  # 用户实际支付币种，非闪兑单中与订单币种一致
     payAmount: Optional[str] = None  # 用户应该支付的金额
     rate: Optional[str] = None  # 订单币种到用户支付币种的汇率，例如，1BTC换20000USDT
