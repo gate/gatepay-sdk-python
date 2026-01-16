@@ -151,8 +151,8 @@ SDK会抛出异常来处理错误情况：
 ## 技术支持
 
 如有技术问题，请联系GatePay技术支持团队：
-- 邮箱: support@gatepay.com
-- 官方文档: https://docs.gatepay.com
+- 邮箱: gatepay@gate.com
+- 官方文档: https://www.gate.com/pay
 
 ## 版本更新
 
