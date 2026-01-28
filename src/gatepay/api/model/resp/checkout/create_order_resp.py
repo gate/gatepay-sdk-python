@@ -18,6 +18,9 @@ class CreateOrderResp:
     location: Optional[str] = None
     payCurrency: Optional[str] = None
     payAmount: Optional[str] = None
+    currency: Optional[str] = None
+    fiatCurrency: Optional[str] = None
+    fiatAmount: Optional[str] = None
     chain: Optional['Chain'] = None
     appName: Optional[str] = None
     appLogo: Optional[str] = None
