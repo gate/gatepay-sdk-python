@@ -429,6 +429,7 @@ class CreateOrderReq(BaseRequest):
         :return:
         """
         self.fiat_amount = fiat_amount
+        self._data.fiat_amount = fiat_amount
 
     def set_fiat_currency(self, fiat_currency: str):
         """
@@ -437,6 +438,7 @@ class CreateOrderReq(BaseRequest):
         :return:
         """
         self.fiat_currency = fiat_currency
+        self._data.fiat_currency = fiat_currency
 
     def to_dict(self):
         """

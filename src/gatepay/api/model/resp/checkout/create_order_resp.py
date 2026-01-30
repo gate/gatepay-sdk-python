@@ -26,6 +26,7 @@ class CreateOrderResp:
     appLogo: Optional[str] = None
     goodsName: Optional[str] = None
     inUsdt: Optional[str] = None
+    toleranceAmount: Optional[str] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'CreateOrderResp':
