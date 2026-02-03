@@ -30,6 +30,10 @@ class QueryOrderResp:
     address: Optional[str] = None  # 收款地址
     chain: Optional[str] = None  # 网络
     fromAddress: Optional[str] = None  # 来源地址
+    fiatCurrency: Optional[str] = None
+    fiatAmount: Optional[str] = None
+    fiatRate: Optional[str] = None
+    toleranceAmount: Optional[str] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'QueryOrderResp':

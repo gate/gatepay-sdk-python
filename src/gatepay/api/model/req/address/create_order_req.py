@@ -31,6 +31,10 @@ class CreateOrderReqData(BaseModel):
     # 用户承担手续费 非必传
     surcharge_amount: Optional[str] = Field(None, alias='surchargeAmount')
 
+    fiat_currency : Optional[str] = Field(None, alias='fiatCurrency')
+
+    fiat_amount : Optional[str] = Field(None, alias='fiatAmount')
+
     # 非地址支付的payCurrency在实际付款时确定，地址支付的payCurrency在下单时候确定
     pay_currency: Optional[str] = Field(None, alias='payCurrency')
 
@@ -86,6 +90,10 @@ class CreateOrderReq(BaseRequest):
 
         # 商户系统中的交易号
         self.merchant_trade_no = None
+
+        self.fiat_currency = None
+
+        self.fiat_amount = None
 
         # 订单币种
         self.currency = None
@@ -413,6 +421,24 @@ class CreateOrderReq(BaseRequest):
         """
         self.channel_id = channel_id
         self._data.channel_id = channel_id
+
+    def set_fiat_amount(self, fiat_amount: str):
+        """
+
+        :param fiat_amount:
+        :return:
+        """
+        self.fiat_amount = fiat_amount
+        self._data.fiat_amount = fiat_amount
+
+    def set_fiat_currency(self, fiat_currency: str):
+        """
+
+        :param fiat_currency:
+        :return:
+        """
+        self.fiat_currency = fiat_currency
+        self._data.fiat_currency = fiat_currency
 
     def to_dict(self):
         """

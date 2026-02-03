@@ -21,6 +21,8 @@ class CreateOrderReq(BaseRequest):
         self.env = None
         self.goods = None
         self.return_url = None
+        self.fiat_currency = None
+        self.fiat_amount = None
 
     def get_merchant_trade_no(self) -> str:
         """
@@ -129,6 +131,23 @@ class CreateOrderReq(BaseRequest):
             return_url (str): 支付完成回调地址
         """
         self.return_url = return_url
+
+
+    def set_fiat_amount(self, fiat_amount: str):
+        """
+
+        :param fiat_amount:
+        :return:
+        """
+        self.fiat_amount = fiat_amount
+
+    def set_fiat_currency(self, fiat_currency: str):
+        """
+
+        :param fiat_currency:
+        :return:
+        """
+        self.fiat_currency = fiat_currency
 
     def __str__(self) -> str:
         """

@@ -50,3 +50,6 @@ class QueryOrderRespV2:
     chain: str = ""
     fromAddress: str = ""
     transaction_info: Optional[ChainTransactionInfo] = None
+    fiatCurrency: Optional[str] = None
+    fiatAmount: Optional[str] = None
+    fiatRate: Optional[str] = None

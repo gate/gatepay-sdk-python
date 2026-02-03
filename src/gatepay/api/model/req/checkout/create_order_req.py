@@ -20,6 +20,8 @@ class CreateOrderReq(BaseRequest):
         self.currency = None
         self.order_amount = None
         self.surcharge_amount = None
+        self.fiat_currency = None
+        self.fiat_amount = None
         self.pay_currency = None
         self.merchant_user_id = 0
         self.goods = None
@@ -262,6 +264,22 @@ class CreateOrderReq(BaseRequest):
             channel_id (str): 渠道ID
         """
         self.channel_id = channel_id
+
+    def set_fiat_amount(self, fiat_amount: str):
+        """
+
+        :param fiat_amount:
+        :return:
+        """
+        self.fiat_amount = fiat_amount
+
+    def set_fiat_currency(self, fiat_currency: str):
+        """
+
+        :param fiat_currency:
+        :return:
+        """
+        self.fiat_currency = fiat_currency
 
     def __str__(self) -> str:
         """

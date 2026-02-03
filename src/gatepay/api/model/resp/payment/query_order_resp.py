@@ -46,6 +46,10 @@ class QueryOrderResp:
     pay_account: Optional[str] = None
     qrcode: Optional[str] = None
     transaction_info: Optional[Any] = None
+    fiatCurrency: Optional[str] = None
+    fiatAmount: Optional[str] = None
+    fiatRate: Optional[str] = None
+    toleranceAmount: Optional[str] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'QueryOrderResp':
