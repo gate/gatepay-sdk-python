@@ -31,6 +31,9 @@ class CreateOrderReqData(BaseModel):
     # 用户承担手续费 非必传
     surcharge_amount: Optional[str] = Field(None, alias='surchargeAmount')
 
+    # 容差金额
+    tolerance_amount: Optional[str] = Field(None, alias='toleranceAmount')
+
     fiat_currency : Optional[str] = Field(None, alias='fiatCurrency')
 
     fiat_amount : Optional[str] = Field(None, alias='fiatAmount')
@@ -103,6 +106,9 @@ class CreateOrderReq(BaseRequest):
 
         # 用户承担手续费 非必传
         self.surcharge_amount = None
+
+        # 容差金额
+        self.tolerance_amount = None
 
         # 非地址支付的payCurrency在实际付款时确定，地址支付的payCurrency在下单时候确定
         self.pay_currency = None
@@ -439,6 +445,35 @@ class CreateOrderReq(BaseRequest):
         """
         self.fiat_currency = fiat_currency
         self._data.fiat_currency = fiat_currency
+
+    def get_fiat_amount(self) -> str:
+        """
+        获取法币金额
+        :return:
+        """
+        return self.fiat_amount
+
+    def get_fiat_currency(self) -> str:
+        """
+        获取法币币种
+        :return:
+        """
+        return self.fiat_currency
+
+    def set_tolerance_amount(self, tolerance_amount: str):
+        """
+        :param tolerance_amount:
+        :return:
+        """
+        self.tolerance_amount = tolerance_amount
+        self._data.tolerance_amount = tolerance_amount
+
+    def get_tolerance_amount(self) -> str:
+        """
+        获取容差金额
+        :return:
+        """
+        return self.tolerance_amount
 
     def to_dict(self):
         """

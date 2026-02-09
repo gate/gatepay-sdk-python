@@ -53,3 +53,4 @@ class QueryOrderRespV2:
     fiatCurrency: Optional[str] = None
     fiatAmount: Optional[str] = None
     fiatRate: Optional[str] = None
+    toleranceAmount: Optional[str] = None
