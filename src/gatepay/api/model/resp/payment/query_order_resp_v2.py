@@ -54,3 +54,4 @@ class QueryOrderRespV2:
     fiatAmount: Optional[str] = None
     fiatRate: Optional[str] = None
     toleranceAmount: Optional[str] = None
+    underpaidAmount: Optional[str] = None
