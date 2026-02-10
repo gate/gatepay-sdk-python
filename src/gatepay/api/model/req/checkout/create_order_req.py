@@ -20,6 +20,8 @@ class CreateOrderReq(BaseRequest):
         self.currency = None
         self.order_amount = None
         self.surcharge_amount = None
+        # 容差金额
+        self.tolerance_amount = None
         self.fiat_currency = None
         self.fiat_amount = None
         self.pay_currency = None
@@ -280,6 +282,20 @@ class CreateOrderReq(BaseRequest):
         :return:
         """
         self.fiat_currency = fiat_currency
+
+    def set_tolerance_amount(self, tolerance_amount: str):
+        """
+        :param tolerance_amount:
+        :return:
+        """
+        self.tolerance_amount = tolerance_amount
+
+    def get_tolerance_amount(self) -> str:
+        """
+        获取容差金额
+        :return:
+        """
+        return self.tolerance_amount
 
     def __str__(self) -> str:
         """
