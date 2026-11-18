@@ -11,23 +11,18 @@ GatePay API官方Python语言客户端代码库。
 
 ## 安装
 
-### 通过pip安装（推荐）
+### 从源码安装（推荐）
 
 ```bash
-pip3 install gatepay-sdk-python
+git clone https://github.com/gate/gatepay-sdk-python.git
+cd gatepay-sdk-python
+pip3 install .
 ```
 
+或直接通过 Git URL 安装：
 
-### 从源码安装
-
-1. 下载地址:
-todo
-
-2. 您也可以使用以下命令获取安装包，代码会被下载到您本地的目录中。
 ```bash
-git clone https://github.com/gatepay2025/gatepay-sdk-python
-cd gatepay-sdk-python
-pip3 install -r requirements.txt
+pip3 install git+https://github.com/gate/gatepay-sdk-python.git
 ```
 
 
